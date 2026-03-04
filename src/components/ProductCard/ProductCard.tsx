@@ -36,7 +36,7 @@ function ProductCard({ name, image, price, horsepower, year, category }: Product
                 </div>
                 
                 <div className="product-card__footer">
-                    <span className="product-card__price">{price.toLocaleString('ru-RU')} ₽</span>
+                    <span className="product-card__price">{price.toLocaleString('ru-RU')} $</span>
                     <button className="product-card__btn">Забронировать</button>
                 </div>
             </div>
