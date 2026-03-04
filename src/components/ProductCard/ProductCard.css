@@ -1,0 +1,131 @@
+.product-card {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(255, 0, 0, 0.2);
+    border-color: #FF0000;
+}
+
+.product-card__image {
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
+}
+
+.product-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-card__image img {
+    transform: scale(1.1);
+}
+
+.product-card__content {
+    padding: 24px;
+}
+
+.product-card__name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    letter-spacing: 0.3px;
+}
+
+.product-card__specs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: #f8f8f8;
+    border-radius: 12px;
+}
+
+.spec {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.spec__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.spec__value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1a1a1a;
+}
+
+.product-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.product-card__price {
+    font-size: 26px;
+    font-weight: 900;
+    color: #FF0000;
+    letter-spacing: -0.5px;
+}
+
+.product-card__btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+}
+
+.product-card__btn:hover {
+    background: linear-gradient(135deg, #DD0000 0%, #AA0000 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+}
+
+.product-card__btn:active {
+    transform: translateY(0);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .product-card__image {
+        height: 180px;
+    }
+    
+    .product-card__name {
+        font-size: 18px;
+    }
+    
+    .product-card__price {
+        font-size: 20px;
+    }
+    
+    .product-card__btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}

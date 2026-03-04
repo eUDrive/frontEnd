@@ -1,0 +1,90 @@
+.about-page {
+    min-height: 100vh;
+    background-color: #f8f8f8;
+    padding: 60px 40px;
+}
+
+.about-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.about-header h1 {
+    font-size: 48px;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.about-header p {
+    font-size: 20px;
+    font-weight: 600;
+    color: #666;
+}
+
+.about-content {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.about-section {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.about-section h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #FF0000;
+    margin-bottom: 20px;
+}
+
+.about-section p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #333;
+    font-weight: 500;
+}
+
+.about-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.about-section ul li {
+    font-size: 17px;
+    line-height: 2;
+    color: #333;
+    font-weight: 600;
+    padding-left: 30px;
+    position: relative;
+}
+
+.about-section ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #FF0000;
+    font-weight: 900;
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .about-page {
+        padding: 40px 20px;
+    }
+    
+    .about-header h1 {
+        font-size: 32px;
+    }
+    
+    .about-section {
+        padding: 30px 20px;
+    }
+}
