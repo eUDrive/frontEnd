@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -53,15 +54,16 @@ function ProductCard({ name, image, price, horsepower, year, category }: Product
                 </div>
             </div>
 
-            {/* Image Modal Pop-up */}
-            {isModalOpen && (
+            {/* Image Modal Pop-up - Rendered at body level */}
+            {isModalOpen && createPortal(
                 <div className="image-modal-backdrop" onClick={handleBackdropClick}>
                     <div className="image-modal">
                         <button className="image-modal__close" onClick={closeModal}>✕</button>
                         <img src={image} alt={name} className="image-modal__img" />
                         <p className="image-modal__title">{name}</p>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
