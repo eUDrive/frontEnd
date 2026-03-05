@@ -14,9 +14,14 @@ interface ProductCardProps {
 
 function ProductCard({ name, image, price, horsepower, year, category }: ProductCardProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isBooked, setIsBooked] = useState(false);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+    
+    const handleBooking = () => {
+        setIsBooked(!isBooked);
+    };
 
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -50,7 +55,12 @@ function ProductCard({ name, image, price, horsepower, year, category }: Product
                 
                 <div className="product-card__footer">
                     <span className="product-card__price">{price.toLocaleString('ru-RU')} $</span>
-                    <button className="product-card__btn">Забронировать</button>
+                    <button 
+                        className={`product-card__btn ${isBooked ? 'product-card__btn--booked' : ''}`}
+                        onClick={handleBooking}
+                    >
+                        {isBooked ? '✓ Забронировано' : 'Забронировать'}
+                    </button>
                 </div>
             </div>
 

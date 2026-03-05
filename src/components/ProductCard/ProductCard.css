@@ -92,13 +92,15 @@
     color: white;
     border: none;
     border-radius: 25px;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+    min-width: 160px;
+    white-space: nowrap;
 }
 
 .product-card__btn:hover {
@@ -109,6 +111,16 @@
 
 .product-card__btn:active {
     transform: translateY(0);
+}
+
+.product-card__btn--booked {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.product-card__btn--booked:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.5);
 }
 
 /* Адаптивность */
