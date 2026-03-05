@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -11,10 +12,21 @@ interface ProductCardProps {
 }
 
 function ProductCard({ name, image, price, horsepower, year, category }: ProductCardProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+
+    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+            closeModal();
+        }
+    };
+
     return (
         <div className="product-card">
-            <div className="product-card__image">
-                <img src={image} alt={name} />
+            <div className="product-card__image" onClick={openModal}>
+                <img src={image} alt={name} style={{ cursor: 'pointer' }} />
             </div>
             
             <div className="product-card__content">
@@ -40,6 +52,17 @@ function ProductCard({ name, image, price, horsepower, year, category }: Product
                     <button className="product-card__btn">Забронировать</button>
                 </div>
             </div>
+
+            {/* Image Modal Pop-up */}
+            {isModalOpen && (
+                <div className="image-modal-backdrop" onClick={handleBackdropClick}>
+                    <div className="image-modal">
+                        <button className="image-modal__close" onClick={closeModal}>✕</button>
+                        <img src={image} alt={name} className="image-modal__img" />
+                        <p className="image-modal__title">{name}</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
