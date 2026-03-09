@@ -12,6 +12,10 @@
     border-bottom: 3px solid #FF0000;
 }
 
+.header .cart {
+    margin-left: auto;
+}
+
 .logo-link {
     display: flex;
     align-items: center;

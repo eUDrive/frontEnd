@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useCart } from '../../context/CartContext';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -12,15 +13,30 @@ interface ProductCardProps {
     category: string;
 }
 
-function ProductCard({ name, image, price, horsepower, year, category }: ProductCardProps) {
+function ProductCard({ id, name, image, price, horsepower, year, category }: ProductCardProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isBooked, setIsBooked] = useState(false);
+    const { addToCart, removeFromCart, isInCart } = useCart();
+    const isBooked = isInCart(id);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
     
     const handleBooking = () => {
-        setIsBooked(!isBooked);
+        if (isBooked) {
+            removeFromCart(id);
+        } else {
+            addToCart({
+                id,
+                brand: name.split(' ')[0],
+                model: name.split(' ').slice(1).join(' '),
+                year,
+                horsePower: horsepower,
+                category: category as "GT" | "Touring" | "Sport",
+                imageUrl: image,
+                pricePerPackage: price,
+                description: '',
+            });
+        }
     };
 
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {

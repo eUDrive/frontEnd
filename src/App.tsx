@@ -4,13 +4,15 @@ import Footer from "./components/Footer/Footer";
 import HomePage from "./pages/HomePage";
 import CatalogPage from "./pages/CatalogPage";
 import AboutPage from "./pages/AboutPage";
+import { CartProvider } from "./context/CartContext";
 import "./App.css";
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="app">
-        <Header />
+      <CartProvider>
+        <div className="app">
+          <Header />
         
         <main className="app-content">
           <Routes>
@@ -23,6 +25,7 @@ function App() {
         
         <Footer />
       </div>
+      </CartProvider>
     </BrowserRouter>
   );
 }
