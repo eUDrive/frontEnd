@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useCart } from '../../context/CartContext';
 import './ProductCard.css';
@@ -11,12 +11,35 @@ interface ProductCardProps {
     horsepower: number;
     year: number;
     category: string;
+    description?: string;
 }
 
-function ProductCard({ id, name, image, price, horsepower, year, category }: ProductCardProps) {
+function ProductCard({ id, name, image, price, horsepower, year, category, description }: ProductCardProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [likes, setLikes] = useState(0);
+    const [isLiked, setIsLiked] = useState(false);
     const { addToCart, removeFromCart, isInCart } = useCart();
     const isBooked = isInCart(id);
+
+    // Загрузка лайков из localStorage
+    useEffect(() => {
+        const savedLikes = localStorage.getItem(`product-likes-${id}`);
+        const savedIsLiked = localStorage.getItem(`product-liked-${id}`);
+        if (savedLikes) setLikes(parseInt(savedLikes, 10));
+        if (savedIsLiked) setIsLiked(JSON.parse(savedIsLiked));
+    }, [id]);
+
+    // Сохранение лайков в localStorage
+    const handleLike = () => {
+        const newIsLiked = !isLiked;
+        const newLikes = newIsLiked ? likes + 1 : likes - 1;
+        
+        setIsLiked(newIsLiked);
+        setLikes(newLikes);
+        
+        localStorage.setItem(`product-likes-${id}`, String(newLikes));
+        localStorage.setItem(`product-liked-${id}`, JSON.stringify(newIsLiked));
+    };
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -34,7 +57,7 @@ function ProductCard({ id, name, image, price, horsepower, year, category }: Pro
                 category: category as "GT" | "Touring" | "Sport",
                 imageUrl: image,
                 pricePerPackage: price,
-                description: '',
+                description: description || '',
             });
         }
     };
@@ -52,7 +75,17 @@ function ProductCard({ id, name, image, price, horsepower, year, category }: Pro
             </div>
             
             <div className="product-card__content">
-                <h3 className="product-card__name">{name}</h3>
+                <div className="product-card__header">
+                    <h3 className="product-card__name">{name}</h3>
+                    <button 
+                        className={`product-card__like ${isLiked ? 'liked' : ''}`}
+                        onClick={handleLike}
+                        title="Нравится"
+                    >
+                        ❤️
+                        {likes > 0 && <span className="like-count">{likes}</span>}
+                    </button>
+                </div>
                 
                 <div className="product-card__specs">
                     <div className="spec">
@@ -70,12 +103,12 @@ function ProductCard({ id, name, image, price, horsepower, year, category }: Pro
                 </div>
                 
                 <div className="product-card__footer">
-                    <span className="product-card__price">{price.toLocaleString('ru-RU')} $</span>
+                    <span className="product-card__price">${price.toFixed(2)}</span>
                     <button 
                         className={`product-card__btn ${isBooked ? 'product-card__btn--booked' : ''}`}
                         onClick={handleBooking}
                     >
-                        {isBooked ? '✓ Забронировано' : 'Забронировать'}
+                        {isBooked ? '✓ В корзине' : 'В корзину'}
                     </button>
                 </div>
             </div>

@@ -28,6 +28,7 @@ function ProductList({ cars }: ProductListProps) {
                     horsepower={car.horsePower}
                     year={car.year}
                     category={car.category}
+                    description={car.description}
                 />
             ))}
         </div>

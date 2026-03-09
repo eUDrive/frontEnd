@@ -21,7 +21,7 @@ function CatalogPage() {
     return (
         <div className="catalog-page">
             <div className="catalog-header">
-                <h1>Каталог автомобилей</h1>
+                <h1>Каталог гоночных машин</h1>
                 <p>Выберите свой идеальный болид для незабываемых гонок на Нюрбургринге</p>
             </div>
             
@@ -29,7 +29,7 @@ function CatalogPage() {
                 <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                 <FilterButtons 
                     selectedCategory={selectedCategory} 
-                    setSelectedCategory={setSelectedCategory} 
+                    setSelectedCategory={setSelectedCategory}
                 />
             </div>
             
