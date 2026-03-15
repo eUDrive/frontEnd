@@ -6,6 +6,7 @@ import CatalogPage from "./pages/CatalogPage";
 import AboutPage from "./pages/AboutPage";
 import { CartProvider } from "./context/CartContext";
 import "./App.css";
+import CertificatePage from "./pages/CertificatePage";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/catalog" element={<CatalogPage />} />
-            <Route path="/certificates" element={<div className="page-placeholder">Страница "Сертификаты" в разработке</div>} />
+            <Route path="/certificates" element={<CertificatePage />} />
             <Route path="/about" element={<AboutPage />} />
           </Routes>
         </main>
