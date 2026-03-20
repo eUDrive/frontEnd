@@ -1,31 +1,57 @@
+import { useState } from "react";
 import { certificates } from "../data/certificates";
+import "./CertificatePage.css";
 
 function CertificatePage() {
+    const [bookedIds, setBookedIds] = useState<number[]>([]);
+
+    const toggleBooked = (id: number) => {
+        setBookedIds((prev) =>
+            prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
+        );
+    };
+
     return (
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "24px 16px" }}>
-            <div>
+        <div className="certificate-page">
+            <div className="certificate-page__header">
                 <h1>Сертификаты</h1>
                 <p>Выбери скорость для себя или в подарок</p>
             </div>
 
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                    gap: "16px",
-                    marginTop: "16px",
-                }}
-            >
-                {certificates.map((c) => (
-                    <div
-                        key={c.id}
-                        style={{ border: "1px solid #000", padding: "16px" }}
-                    >
-                        <h3 style={{ marginTop: 0 }}>{c.title}</h3>
-                        <p><strong>Длительность:</strong> {c.duration}</p>
-                        <p>{c.description}</p>
-                        <p><strong>Цена:</strong> {c.price} $</p>
-                    </div>
+            <div className="certificate-grid">
+                {certificates.map((c, idx) => (
+                    <article key={c.id} className="certificate-card" data-color={idx}>
+                        <div className="certificate-card__content">
+                            <h3 className="certificate-card__title">{c.title}</h3>
+                            <p className="certificate-card__subtitle">{c.duration}</p>
+                            <p className="certificate-card__description">{c.description}</p>
+                            
+                            <ul className="certificate-card__includes">
+                                {c.includes.map((item) => (
+                                    <li key={item}>{item}</li>
+                                ))}
+                            </ul>
+                            
+                            <div className="certificate-card__footer">
+                                <span className="certificate-card__price">
+                                    {c.price.toLocaleString("ru-RU")} $
+                                </span>
+                                <button
+                                    type="button"
+                                    className={`certificate-card__book-btn ${
+                                        bookedIds.includes(c.id)
+                                            ? "certificate-card__book-btn--booked"
+                                            : ""
+                                    }`}
+                                    onClick={() => toggleBooked(c.id)}
+                                >
+                                    {bookedIds.includes(c.id)
+                                        ? "✓ Забронировано"
+                                        : "Забронировать"}
+                                </button>
+                            </div>
+                        </div>
+                    </article>
                 ))}
             </div>
         </div>

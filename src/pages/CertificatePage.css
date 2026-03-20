@@ -1,0 +1,399 @@
+.certificate-page {
+    min-height: 100vh;
+    padding: 48px 20px 64px;
+    background: #ffffff;
+}
+
+.certificate-page__header {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    text-align: center;
+}
+
+.certificate-page__header h1 {
+    margin: 0;
+    color: #111111;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.certificate-page__header p {
+    margin: 10px auto 0;
+    max-width: 680px;
+    color: #555555;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.certificate-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.certificate-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: 1fr;
+    min-height: 280px;
+    border: 2px solid #111111;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+
+.certificate-card::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.certificate-card[data-color="0"]::before {
+    background: #22b34d;
+}
+
+.certificate-card[data-color="1"]::before {
+    background: #ffb800;
+}
+
+.certificate-card[data-color="2"]::before {
+    background: #e10600;
+}
+
+.certificate-card::after {
+    content: "";
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    border: 2px dashed rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    pointer-events: none;
+    background-image: url('/assets/logowo.png');
+    background-size: 85%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.certificate-card[data-color="0"]::after {
+    border-color: #22b34d;
+}
+
+.certificate-card[data-color="1"]::after {
+    border-color: #ffb800;
+}
+
+.certificate-card[data-color="2"]::after {
+    border-color: #e10600;
+}
+
+.certificate-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.15);
+}
+
+.certificate-card__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 60px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.certificate-card__title {
+    margin: 0 0 4px;
+    color: #111111;
+    font-size: 1.35rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+}
+
+.certificate-card__subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.certificate-card[data-color="0"] .certificate-card__subtitle {
+    color: #22b34d;
+}
+
+.certificate-card[data-color="1"] .certificate-card__subtitle {
+    color: #ffb800;
+}
+
+.certificate-card[data-color="2"] .certificate-card__subtitle {
+    color: #e10600;
+}
+
+.certificate-card__description {
+    margin: 12px 0 0;
+    color: #555555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 700px;
+}
+
+.certificate-card__includes {
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 700px;
+}
+
+.certificate-card__includes li {
+    position: relative;
+    padding: 4px 8px 4px 18px;
+    border: 1px solid #e0e0e0;
+    border-radius: 999px;
+    background: #f9f9f9;
+    color: #2a2a2a;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.certificate-card__includes li::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.certificate-card[data-color="0"] .certificate-card__includes li::before {
+    background: #22b34d;
+}
+
+.certificate-card[data-color="1"] .certificate-card__includes li::before {
+    background: #ffb800;
+}
+
+.certificate-card[data-color="2"] .certificate-card__includes li::before {
+    background: #e10600;
+}
+
+.certificate-card__footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    width: 100%;
+    border-top: 2px dashed #f0f0f0;
+}
+
+.certificate-card[data-color="0"] .certificate-card__footer {
+    border-top-color: #22b34d;
+}
+
+.certificate-card[data-color="1"] .certificate-card__footer {
+    border-top-color: #ffb800;
+}
+
+.certificate-card[data-color="2"] .certificate-card__footer {
+    border-top-color: #e10600;
+}
+
+.certificate-card__visual {
+    display: none;
+}
+
+.certificate-card__price {
+    color: #111111;
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.certificate-card__book-btn {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.certificate-card[data-color="0"] .certificate-card__book-btn {
+    background: linear-gradient(135deg, #22b34d 0%, #1a8c3e 100%);
+    box-shadow: 0 4px 12px rgba(34, 179, 77, 0.3);
+}
+
+.certificate-card[data-color="0"] .certificate-card__book-btn:hover {
+    box-shadow: 0 6px 16px rgba(34, 179, 77, 0.4);
+}
+
+.certificate-card[data-color="1"] .certificate-card__book-btn {
+    background: linear-gradient(135deg, #ffb800 0%, #e6a500 100%);
+    box-shadow: 0 4px 12px rgba(255, 184, 0, 0.3);
+}
+
+.certificate-card[data-color="1"] .certificate-card__book-btn:hover {
+    box-shadow: 0 6px 16px rgba(255, 184, 0, 0.4);
+}
+
+.certificate-card[data-color="2"] .certificate-card__book-btn {
+    background: linear-gradient(135deg, #ff1e1e 0%, #c70000 100%);
+    box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);
+}
+
+.certificate-card[data-color="2"] .certificate-card__book-btn:hover {
+    box-shadow: 0 6px 16px rgba(225, 6, 0, 0.4);
+}
+
+.certificate-card__book-btn:hover {
+    transform: translateY(-1px);
+}
+
+.certificate-card__book-btn--booked {
+    background: linear-gradient(135deg, #5f5f5f 0%, #414141 100%) !important;
+    box-shadow: 0 4px 12px rgba(42, 42, 42, 0.28) !important;
+}
+
+
+
+@media (max-width: 1024px) {
+    .certificate-card {
+        min-height: 260px;
+    }
+
+    .certificate-card::after {
+        width: 75px;
+        height: 75px;
+    }
+
+    .certificate-card__content {
+        padding: 36px 48px;
+    }
+
+    .certificate-card__title {
+        font-size: 1.25rem;
+    }
+
+    .certificate-card__description {
+        font-size: 0.9rem;
+    }
+
+    .certificate-card__book-btn {
+        padding: 8px 14px;
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .certificate-page {
+        padding: 32px 16px 48px;
+    }
+
+    .certificate-grid {
+        gap: 14px;
+    }
+
+    .certificate-card {
+        min-height: 240px;
+    }
+
+    .certificate-card::after {
+        width: 70px;
+        height: 70px;
+        top: 10px;
+        right: 16px;
+    }
+
+    .certificate-card__content {
+        padding: 28px 20px;
+    }
+
+    .certificate-card__title {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+    }
+
+    .certificate-card__subtitle {
+        font-size: 0.8rem;
+    }
+
+    .certificate-card__description {
+        font-size: 0.85rem;
+        margin-top: 8px;
+    }
+
+    .certificate-card__includes {
+        margin: 12px 0 0;
+        gap: 6px;
+    }
+
+    .certificate-card__includes li {
+        padding: 3px 6px 3px 16px;
+        font-size: 0.65rem;
+    }
+
+    .certificate-card__visual {
+        min-height: 140px;
+        padding: 12px;
+        border-left: none;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .certificate-badge {
+        padding: 10px;
+    }
+
+    .certificate-badge__text {
+        font-size: 0.65rem;
+    }
+
+    .certificate-card__footer {
+        margin-top: 12px;
+        padding-top: 12px;
+        gap: 8px;
+    }
+
+    .certificate-card__price {
+        font-size: 1.2rem;
+    }
+
+    .certificate-card__book-btn {
+        padding: 8px 12px;
+        font-size: 0.65rem;
+        flex: 1;
+        text-align: center;
+    }
+}
