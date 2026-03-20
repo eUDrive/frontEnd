@@ -278,45 +278,6 @@ export const AuthPage: React.FC = () => {
           </form>
         )}
 
-        {/* Divider */}
-        <div className="auth-divider">
-          <span>Or continue with</span>
-        </div>
-
-        {/* OAuth Buttons */}
-        <div className="oauth-buttons">
-          <button
-            type="button"
-            className="oauth-btn"
-            onClick={() => handleOAuthLogin('google')}
-            disabled={isLoading}
-            title="Login with Google"
-          >
-            <span>🔍</span>
-            <span className="oauth-label">Google</span>
-          </button>
-          <button
-            type="button"
-            className="oauth-btn"
-            onClick={() => handleOAuthLogin('github')}
-            disabled={isLoading}
-            title="Login with GitHub"
-          >
-            <span>🐙</span>
-            <span className="oauth-label">GitHub</span>
-          </button>
-          <button
-            type="button"
-            className="oauth-btn"
-            onClick={() => handleOAuthLogin('microsoft')}
-            disabled={isLoading}
-            title="Login with Microsoft"
-          >
-            <span>🪟</span>
-            <span className="oauth-label">Microsoft</span>
-          </button>
-        </div>
-
         {/* Footer */}
         <div className="auth-footer">
           <small>
