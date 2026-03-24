@@ -14,6 +14,7 @@ function Header() {
             <nav>
                 <Link to="/catalog">Каталог</Link>
                 <Link to="/certificates">Сертификаты</Link>
+                <Link to="/contact">Контакты</Link>
                 <Link to="/about">О нас</Link>
             </nav>
             <Cart />
