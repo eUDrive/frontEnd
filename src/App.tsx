@@ -10,6 +10,7 @@ import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import "./App.css";
 import CertificatePage from "./pages/CertificatePage";
+import PrivacyTermsPage from "./pages/PrivacyTermsPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/certificates" element={<CertificatePage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/privacy-terms" element={<PrivacyTermsPage />} />
               </Routes>
             </main>
             
