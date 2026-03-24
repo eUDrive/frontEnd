@@ -7,7 +7,7 @@ function ContactPage() {
     {
       icon: '📞',
       label: 'Телефон',
-      value: '+7 (9) 123-456'
+      value: '+373 (79) 123-456'
     },
     {
       icon: '✉️',
