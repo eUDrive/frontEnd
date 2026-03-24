@@ -7,7 +7,7 @@ import './CartPage.css';
 
 interface PaymentFormData {
     // User info fields for non-authenticated users
-    phoneNumber: string;
+    email: string;
     // Payment card fields
     cardholderName: string;
     cardNumber: string;
@@ -38,10 +38,10 @@ function getItemName(item: CartItem): string {
 }
 
 function CartPage() {
-    const { cartItems, removeFromCart } = useCart();
+    const { cartItems, removeFromCart, updateQuantity } = useCart();
     const { user, isAuthenticated } = useAuth();
     const [paymentData, setPaymentData] = useState<PaymentFormData>({
-        phoneNumber: '',
+        email: '',
         cardholderName: isAuthenticated ? user?.name || '' : '',
         cardNumber: '',
         expiryDate: '',
@@ -50,7 +50,7 @@ function CartPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
 
-    const totalPrice = cartItems.reduce((sum, item) => sum + getItemPrice(item), 0);
+    const totalPrice = cartItems.reduce((sum, cartItem) => sum + (getItemPrice(cartItem.item) * cartItem.quantity), 0);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -61,8 +61,8 @@ function CartPage() {
     };
 
     const validateForm = (): boolean => {
-        if (!isAuthenticated && !paymentData.phoneNumber.trim()) {
-            alert('Пожалуйста, введите номер телефона');
+        if (!isAuthenticated && !paymentData.email.trim()) {
+            alert('Пожалуйста, введите электронную почту');
             return false;
         }
         if (!paymentData.cardholderName.trim()) {
@@ -103,7 +103,7 @@ function CartPage() {
 
             // TODO: Send payment to backend
             console.log('Payment processed:', {
-                user: isAuthenticated ? user : { phoneNumber: paymentData.phoneNumber },
+                user: isAuthenticated ? user : { email: paymentData.email },
                 items: cartItems,
                 total: totalPrice,
                 payment: paymentData,
@@ -115,7 +115,7 @@ function CartPage() {
             setTimeout(() => {
                 setOrderPlaced(false);
                 setPaymentData({
-                    phoneNumber: '',
+                    email: '',
                     cardholderName: isAuthenticated ? user?.name || '' : '',
                     cardNumber: '',
                     expiryDate: '',
@@ -162,28 +162,45 @@ function CartPage() {
                     ) : (
                         <>
                             <div className="order-items">
-                                {cartItems.map((item) => (
-                                    <div key={item.id} className="order-item">
-                                        {!isCertificate(item) && (
+                                {cartItems.map((cartItem) => (
+                                    <div key={cartItem.item.id} className="order-item">
+                                        {!isCertificate(cartItem.item) && (
                                             <img 
-                                                src={(item as any).imageUrl}
-                                                alt={getItemName(item)}
+                                                src={(cartItem.item as any).imageUrl}
+                                                alt={getItemName(cartItem.item)}
                                                 className="order-item-image"
                                             />
                                         )}
                                         <div className="order-item-details">
-                                            <h4>{getItemName(item)}</h4>
-                                            {!isCertificate(item) && (
-                                                <p className="item-specs">{(item as any).year} • {(item as any).horsePower} л.с.</p>
+                                            <h4>{getItemName(cartItem.item)}</h4>
+                                            {!isCertificate(cartItem.item) && (
+                                                <p className="item-specs">{(cartItem.item as any).year} • {(cartItem.item as any).horsePower} л.с.</p>
                                             )}
-                                            {isCertificate(item) && (
-                                                <p className="item-specs">{(item as any).duration}</p>
+                                            {isCertificate(cartItem.item) && (
+                                                <p className="item-specs">{(cartItem.item as any).duration}</p>
                                             )}
-                                            <p className="item-price">{getItemPrice(item).toLocaleString('ru-RU')} $</p>
+                                            <p className="item-price">{getItemPrice(cartItem.item).toLocaleString('ru-RU')} $</p>
+                                        </div>
+                                        <div className="item-quantity-controls">
+                                            <button 
+                                                className="quantity-btn"
+                                                onClick={() => updateQuantity(cartItem.item.id, cartItem.quantity - 1)}
+                                                title="Уменьшить количество"
+                                            >
+                                                −
+                                            </button>
+                                            <span className="quantity-value">{cartItem.quantity}</span>
+                                            <button 
+                                                className="quantity-btn"
+                                                onClick={() => updateQuantity(cartItem.item.id, cartItem.quantity + 1)}
+                                                title="Увеличить количество"
+                                            >
+                                                +
+                                            </button>
                                         </div>
                                         <button 
                                             className="remove-item-btn"
-                                            onClick={() => removeFromCart(item.id)}
+                                            onClick={() => removeFromCart(cartItem.item.id)}
                                             title="Удалить из заказа"
                                         >
                                             ✕
@@ -224,15 +241,15 @@ function CartPage() {
                             ) : (
                                 <div className="user-form-fields">
                                     <div className="form-group">
-                                        <label htmlFor="phoneNumber">
-                                            Номер телефона *
+                                        <label htmlFor="email">
+                                            Электронная почта *
                                         </label>
                                         <input
-                                            type="tel"
-                                            id="phoneNumber"
-                                            name="phoneNumber"
-                                            placeholder="+7 (XXX) XXX-XX-XX"
-                                            value={paymentData.phoneNumber}
+                                            type="email"
+                                            id="email"
+                                            name="email"
+                                            placeholder="your.email@gmail.com"
+                                            value={paymentData.email}
                                             onChange={handleInputChange}
                                             required
                                         />

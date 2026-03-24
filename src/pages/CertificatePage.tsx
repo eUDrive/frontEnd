@@ -3,10 +3,14 @@ import { useCart } from "../context/CartContext";
 import "./CertificatePage.css";
 
 function CertificatePage() {
-    const { addToCart, isInCart } = useCart();
+    const { addToCart, removeAllFromCart, isInCart } = useCart();
 
-    const handleAddToCart = (certificate: typeof certificates[0]) => {
-        addToCart(certificate);
+    const handleToggleCart = (certificate: typeof certificates[0]) => {
+        if (isInCart(certificate.id)) {
+            removeAllFromCart(certificate.id);
+        } else {
+            addToCart(certificate);
+        }
     };
 
     return (
@@ -41,7 +45,7 @@ function CertificatePage() {
                                             ? "certificate-card__book-btn--booked"
                                             : ""
                                     }`}
-                                    onClick={() => handleAddToCart(c)}
+                                    onClick={() => handleToggleCart(c)}
                                 >
                                     {isInCart(c.id)
                                         ? "✓ В корзине"
