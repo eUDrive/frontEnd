@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import CatalogPage from "./pages/CatalogPage";
 import AboutPage from "./pages/AboutPage";
 import { AuthPage } from "./pages/AuthPage";
+import CartPage from "./pages/CartPage";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import "./App.css";
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/catalog" element={<CatalogPage />} />
+                <Route path="/cart" element={<CartPage />} />
                 <Route path="/certificates" element={<CertificatePage />} />
                 <Route path="/about" element={<AboutPage />} />
               </Routes>
