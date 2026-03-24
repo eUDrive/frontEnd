@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
-import { getOAuthProvider, generateOAuthUrl, generateRandomState } from '../utils/oauth';
 import './AuthPage.css';
 
 export const AuthPage: React.FC = () => {
@@ -94,23 +93,6 @@ export const AuthPage: React.FC = () => {
     } catch (err) {
       // Error is handled in context
     }
-  };
-
-  /**
-   * Handle OAuth login
-   */
-  const handleOAuthLogin = (providerName: string) => {
-    const provider = getOAuthProvider(providerName);
-    if (!provider) return;
-
-    const redirectUri = `${window.location.origin}/auth/callback`;
-    const state = generateRandomState();
-
-    // Store state in sessionStorage for verification on callback
-    sessionStorage.setItem('oauth_state', state);
-
-    const oauthUrl = generateOAuthUrl(provider, redirectUri, state);
-    window.location.href = oauthUrl;
   };
 
   if (isSuccess) {
