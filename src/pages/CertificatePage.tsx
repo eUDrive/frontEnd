@@ -1,14 +1,12 @@
-import { useState } from "react";
 import { certificates } from "../data/certificates";
+import { useCart } from "../context/CartContext";
 import "./CertificatePage.css";
 
 function CertificatePage() {
-    const [bookedIds, setBookedIds] = useState<number[]>([]);
+    const { addToCart, isInCart } = useCart();
 
-    const toggleBooked = (id: number) => {
-        setBookedIds((prev) =>
-            prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-        );
+    const handleAddToCart = (certificate: typeof certificates[0]) => {
+        addToCart(certificate);
     };
 
     return (
@@ -39,15 +37,15 @@ function CertificatePage() {
                                 <button
                                     type="button"
                                     className={`certificate-card__book-btn ${
-                                        bookedIds.includes(c.id)
+                                        isInCart(c.id)
                                             ? "certificate-card__book-btn--booked"
                                             : ""
                                     }`}
-                                    onClick={() => toggleBooked(c.id)}
+                                    onClick={() => handleAddToCart(c)}
                                 >
-                                    {bookedIds.includes(c.id)
-                                        ? "✓ Забронировано"
-                                        : "Забронировать"}
+                                    {isInCart(c.id)
+                                        ? "✓ В корзине"
+                                        : "Добавить в корзину"}
                                 </button>
                             </div>
                         </div>

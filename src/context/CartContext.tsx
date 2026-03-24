@@ -1,20 +1,23 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Car } from '../data/products';
+import type { Certificate } from '../data/certificates';
+
+export type CartItem = Car | Certificate;
 
 interface CartContextType {
-    cartItems: Car[];
-    addToCart: (item: Car) => void;
-    removeFromCart: (itemId: number) => void;
-    isInCart: (itemId: number) => boolean;
+    cartItems: CartItem[];
+    addToCart: (item: CartItem) => void;
+    removeFromCart: (itemId: number, itemType?: 'car' | 'certificate') => void;
+    isInCart: (itemId: number, itemType?: 'car' | 'certificate') => boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [cartItems, setCartItems] = useState<Car[]>([]);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-    const addToCart = (item: Car) => {
+    const addToCart = (item: CartItem) => {
         setCartItems((prev) => [...prev, item]);
     };
 

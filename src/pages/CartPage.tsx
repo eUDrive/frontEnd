@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import type { CartItem } from '../context/CartContext';
 import './CartPage.css';
 
 interface PaymentFormData {
@@ -12,6 +13,28 @@ interface PaymentFormData {
     cardNumber: string;
     expiryDate: string;
     cvv: string;
+}
+
+function isCertificate(item: CartItem): boolean {
+    return 'duration' in item && 'includes' in item;
+}
+
+function getItemPrice(item: CartItem): number {
+    if (isCertificate(item)) {
+        const cert = item as any;
+        return cert.price;
+    }
+    const car = item as any;
+    return car.pricePerPackage;
+}
+
+function getItemName(item: CartItem): string {
+    if (isCertificate(item)) {
+        const cert = item as any;
+        return cert.title;
+    }
+    const car = item as any;
+    return `${car.brand} ${car.model}`;
 }
 
 function CartPage() {
@@ -27,7 +50,7 @@ function CartPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
 
-    const totalPrice = cartItems.reduce((sum, item) => sum + item.pricePerPackage, 0);
+    const totalPrice = cartItems.reduce((sum, item) => sum + getItemPrice(item), 0);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -141,15 +164,22 @@ function CartPage() {
                             <div className="order-items">
                                 {cartItems.map((item) => (
                                     <div key={item.id} className="order-item">
-                                        <img 
-                                            src={item.imageUrl} 
-                                            alt={`${item.brand} ${item.model}`}
-                                            className="order-item-image"
-                                        />
+                                        {!isCertificate(item) && (
+                                            <img 
+                                                src={(item as any).imageUrl}
+                                                alt={getItemName(item)}
+                                                className="order-item-image"
+                                            />
+                                        )}
                                         <div className="order-item-details">
-                                            <h4>{item.brand} {item.model}</h4>
-                                            <p className="item-specs">{item.year} • {item.horsePower} л.с.</p>
-                                            <p className="item-price">{item.pricePerPackage.toLocaleString('ru-RU')} $</p>
+                                            <h4>{getItemName(item)}</h4>
+                                            {!isCertificate(item) && (
+                                                <p className="item-specs">{(item as any).year} • {(item as any).horsePower} л.с.</p>
+                                            )}
+                                            {isCertificate(item) && (
+                                                <p className="item-specs">{(item as any).duration}</p>
+                                            )}
+                                            <p className="item-price">{getItemPrice(item).toLocaleString('ru-RU')} $</p>
                                         </div>
                                         <button 
                                             className="remove-item-btn"
