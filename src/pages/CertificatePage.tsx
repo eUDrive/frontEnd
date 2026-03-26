@@ -15,7 +15,7 @@ function CertificatePage() {
         <div className="certificate-page">
             <div className="certificate-page__header">
                 <h1>Сертификаты</h1>
-                <p>Выбери скорость для себя или в подарок</p>
+                <p>Выбери скорость для себя или в подарок:</p>
             </div>
 
             <div className="certificate-grid">
