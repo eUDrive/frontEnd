@@ -4,7 +4,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url("../../../public/images/nurburg.jpg") center/cover;
+    background: url("/images/nurburg.jpg") center/cover;
     background-size: cover;
     background-position: center;
     overflow: hidden;
