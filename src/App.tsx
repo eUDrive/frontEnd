@@ -10,14 +10,13 @@ import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import "./App.css";
 import CertificatePage from "./pages/CertificatePage";
-import ContactPage from "./pages/ContactPage";
-import ErrorPage from "./pages/ErrorPage";
+import PrivacyTermsPage from "./pages/PrivacyTermsPage";
 
 function AppContent() {
   const location = useLocation();
   
   // Check if current route is error page (wildcard route)
-  const validRoutes = ['/', '/auth', '/catalog', '/cart', '/certificates', '/contact', '/about'];
+  const validRoutes = ['/', '/auth', '/catalog', '/cart', '/certificates', '/about', '/privacy-terms'];
   const isErrorPage = !validRoutes.includes(location.pathname);
 
   return (
@@ -31,9 +30,8 @@ function AppContent() {
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/certificates" element={<CertificatePage />} />
-          <Route path="/contact" element={<ContactPage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="*" element={<ErrorPage />} />
+          <Route path="/privacy-terms" element={<PrivacyTermsPage />} />
         </Routes>
       </main>
       
