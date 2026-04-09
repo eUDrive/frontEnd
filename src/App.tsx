@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import CatalogPage from "./pages/CatalogPage";
 import AboutPage from "./pages/AboutPage";
 import { AuthPage } from "./pages/AuthPage";
+import { PersonalCabinetPage } from "./pages/PersonalCabinetPage";
 import CartPage from "./pages/CartPage";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -17,7 +18,7 @@ function AppContent() {
   const location = useLocation();
   
   // Check if current route is error page (wildcard route)
-  const validRoutes = ['/', '/auth', '/catalog', '/cart', '/certificates', '/about', '/contact', '/privacy-terms'];
+  const validRoutes = ['/', '/auth', '/cabinet', '/catalog', '/cart', '/certificates', '/about', '/contact', '/privacy-terms'];
   const isErrorPage = !validRoutes.includes(location.pathname);
 
   return (
@@ -28,6 +29,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/cabinet" element={<PersonalCabinetPage />} />
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/certificates" element={<CertificatePage />} />

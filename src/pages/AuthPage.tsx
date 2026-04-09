@@ -3,9 +3,14 @@ import { useAuth } from '../context/AuthContext';
 import { validateEmail, validatePassword, validateName } from '../utils/validation';
 import './AuthPage.css';
 
-export const AuthPage: React.FC = () => {
+interface AuthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const { login, signup, isLoading, error, isSuccess, clearError } = useAuth();
+  const { login, signup, isLoading, error, clearError } = useAuth();
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -23,6 +28,19 @@ export const AuthPage: React.FC = () => {
   useEffect(() => {
     if (error) clearError();
   }, [isLogin, clearError, error]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setLoginEmail('');
+      setLoginPassword('');
+      setSignupName('');
+      setSignupEmail('');
+      setSignupPassword('');
+      setSignupConfirmPassword('');
+      setLoginErrors({});
+      setSignupErrors({});
+    }
+  }, [isOpen]);
 
   /**
    * Handle login form submission
@@ -50,6 +68,7 @@ export const AuthPage: React.FC = () => {
     setLoginErrors({});
     try {
       await login(loginEmail, loginPassword);
+      onClose();
     } catch (err) {
       // Error is handled in context
     }
@@ -79,7 +98,7 @@ export const AuthPage: React.FC = () => {
     }
 
     if (signupPassword !== signupConfirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = 'Пароли не совпадают';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -90,28 +109,26 @@ export const AuthPage: React.FC = () => {
     setSignupErrors({});
     try {
       await signup(signupEmail, signupPassword, signupName);
+      onClose();
     } catch (err) {
       // Error is handled in context
     }
   };
 
-  if (isSuccess) {
-    return (
-      <div className="auth-page auth-page--success">
-        <div className="success-message">
-          <h2>✓ Authentication Successful</h2>
-          <p>Redirecting to dashboard...</p>
-        </div>
-      </div>
-    );
+  if (!isOpen) {
+    return null;
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
+    <div className="auth-modal-overlay" onClick={onClose}>
+      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="auth-modal-close" onClick={onClose}>
+          ✕
+        </button>
+
         <div className="auth-header">
-          <h1>Authentication</h1>
-          <p>Secure access to your account</p>
+          <h1>Вход в аккаунт</h1>
+          <p>Безопасный доступ к вашему профилю</p>
         </div>
 
         {/* Tabs */}
@@ -121,14 +138,14 @@ export const AuthPage: React.FC = () => {
             onClick={() => setIsLogin(true)}
             disabled={isLoading}
           >
-            Login
+            Вход
           </button>
           <button
             className={`auth-tab ${!isLogin ? 'auth-tab--active' : ''}`}
             onClick={() => setIsLogin(false)}
             disabled={isLoading}
           >
-            Sign Up
+            Регистрация
           </button>
         </div>
 
@@ -139,13 +156,12 @@ export const AuthPage: React.FC = () => {
         {isLogin && (
           <form className="auth-form" onSubmit={handleLoginSubmit}>
             <div className="form-group">
-              <label htmlFor="login-email">Email Address</label>
               <input
                 id="login-email"
                 type="email"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder="E-mail адрес"
                 disabled={isLoading}
                 className={loginErrors.email ? 'input-error' : ''}
               />
@@ -155,13 +171,12 @@ export const AuthPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="login-password">Password</label>
               <input
                 id="login-password"
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="Пароль"
                 disabled={isLoading}
                 className={loginErrors.password ? 'input-error' : ''}
               />
@@ -175,7 +190,7 @@ export const AuthPage: React.FC = () => {
               className="btn btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? 'Вход...' : 'Вход'}
             </button>
           </form>
         )}
@@ -184,13 +199,12 @@ export const AuthPage: React.FC = () => {
         {!isLogin && (
           <form className="auth-form" onSubmit={handleSignupSubmit}>
             <div className="form-group">
-              <label htmlFor="signup-name">Full Name</label>
               <input
                 id="signup-name"
                 type="text"
                 value={signupName}
                 onChange={(e) => setSignupName(e.target.value)}
-                placeholder="Enter your name"
+                placeholder="Полное имя"
                 disabled={isLoading}
                 className={signupErrors.name ? 'input-error' : ''}
               />
@@ -200,13 +214,12 @@ export const AuthPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="signup-email">Email Address</label>
               <input
                 id="signup-email"
                 type="email"
                 value={signupEmail}
                 onChange={(e) => setSignupEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder="E-mail адрес"
                 disabled={isLoading}
                 className={signupErrors.email ? 'input-error' : ''}
               />
@@ -216,32 +229,27 @@ export const AuthPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="signup-password">Password</label>
               <input
                 id="signup-password"
                 type="password"
                 value={signupPassword}
                 onChange={(e) => setSignupPassword(e.target.value)}
-                placeholder="Create a strong password"
+                placeholder="Пароль (минимум 8 символов)"
                 disabled={isLoading}
                 className={signupErrors.password ? 'input-error' : ''}
               />
               {signupErrors.password && (
                 <span className="error-message">{signupErrors.password}</span>
               )}
-              <small className="password-hint">
-                Password must contain at least 8 characters, including uppercase, lowercase, and numbers.
-              </small>
             </div>
 
             <div className="form-group">
-              <label htmlFor="signup-confirm-password">Confirm Password</label>
               <input
                 id="signup-confirm-password"
                 type="password"
                 value={signupConfirmPassword}
                 onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                placeholder="Re-enter your password"
+                placeholder="Подтвердите пароль"
                 disabled={isLoading}
                 className={signupErrors.confirmPassword ? 'input-error' : ''}
               />
@@ -255,7 +263,7 @@ export const AuthPage: React.FC = () => {
               className="btn btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? 'Creating account...' : 'Sign Up'}
+              {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>
           </form>
         )}
@@ -263,17 +271,22 @@ export const AuthPage: React.FC = () => {
         {/* Footer */}
         <div className="auth-footer">
           <small>
-            By continuing, you agree to our{' '}
+            Продолжая, вы соглашаетесь с нашими{' '}
             <a href="#terms" className="link">
-              Terms of Service
+              Условиями обслуживания
             </a>{' '}
-            and{' '}
+            и{' '}
             <a href="#privacy" className="link">
-              Privacy Policy
+              Политикой конфиденциальности
             </a>
           </small>
         </div>
       </div>
     </div>
   );
+};
+
+// Legacy AuthPage component for backward compatibility
+export const AuthPage: React.FC = () => {
+  return <AuthModal isOpen={true} onClose={() => window.history.back()} />;
 };
