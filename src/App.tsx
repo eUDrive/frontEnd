@@ -13,6 +13,8 @@ import "./App.css";
 import CertificatePage from "./pages/CertificatePage";
 import PrivacyTermsPage from "./pages/PrivacyTermsPage";
 import ContactPage from "./pages/ContactPage";
+import ErrorPage from "./pages/ErrorPage";
+import AdminPage from "./pages/AdminPage";
 
 function AppContent() {
   const location = useLocation();
@@ -36,6 +38,8 @@ function AppContent() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy-terms" element={<PrivacyTermsPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
       </main>
       
