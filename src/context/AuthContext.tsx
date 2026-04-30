@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { authAPI } from '../utils/api';
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  name: string;
+  username: string;
   avatar?: string;
   provider?: 'email' | 'google' | 'github' | 'microsoft';
 }
@@ -18,7 +19,7 @@ export interface AuthState {
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
+  signup: (username: string, email: string, password: string) => Promise<void>;
   oauthLogin: (provider: string, token: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
@@ -40,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...prev,
       error,
       isLoading: false,
+      isSuccess: false,
     }));
   };
 
@@ -50,7 +52,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   }, []);
 
-  const login = useCallback(async (email: string, _password: string) => {
+  // ЛОГИН
+  const login = useCallback(async (email: string, password: string) => {
     try {
       setAuthState((prev) => ({
         ...prev,
@@ -58,31 +61,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       }));
 
-      // TODO: Replace with actual API call
-      // In production: validate credentials against backend
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
+      // 🔴 РЕАЛЬНЫЙ API ВЫЗОВ!
+      const response = await authAPI.login({ email, password });
+
+      if (!response.isSuccess) {
+        handleError(response.message || 'Login failed');
+        return;
+      }
+
+      // Создаём объект пользователя
+      const user: User = {
+        id: response.data?.id || 0,
+        username: response.data?.username || email.split('@')[0],
+        email: response.data?.email || email,
         provider: 'email',
       };
 
       setAuthState({
-        user: mockUser,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
         isSuccess: true,
       });
 
-      // Store token in localStorage (in production, use secure httpOnly cookies)
-      localStorage.setItem('auth_token', 'mock-token');
+      // Сохраняем в localStorage (на продакшене используй httpOnly cookies)
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('isAuthenticated', 'true');
     } catch (err) {
       handleError(err instanceof Error ? err.message : 'Login failed');
     }
   }, []);
 
-  const signup = useCallback(async (email: string, _password: string, name: string) => {
+  // РЕГИСТРАЦИЯ
+  const signup = useCallback(async (username: string, email: string, password: string) => {
     try {
       setAuthState((prev) => ({
         ...prev,
@@ -90,30 +102,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       }));
 
-      // TODO: Replace with actual API call
-      // In production: hash password and store user in database
-      const mockUser: User = {
-        id: '2',
-        email,
-        name,
+      // 🔴 РЕАЛЬНЫЙ API ВЫЗОВ!
+      const response = await authAPI.register({ username, email, password });
+
+      if (!response.isSuccess) {
+        handleError(response.message || 'Registration failed');
+        return;
+      }
+
+      // После регистрации сразу логиним пользователя
+      const user: User = {
+        id: response.data?.id || 0,
+        username: response.data?.username || username,
+        email: response.data?.email || email,
         provider: 'email',
       };
 
       setAuthState({
-        user: mockUser,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
         isSuccess: true,
       });
 
-      localStorage.setItem('auth_token', 'mock-token');
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('isAuthenticated', 'true');
     } catch (err) {
-      handleError(err instanceof Error ? err.message : 'Signup failed');
+      handleError(err instanceof Error ? err.message : 'Registration failed');
     }
   }, []);
 
-  const oauthLogin = useCallback(async (provider: string, token: string) => {
+  // OAuth (пока оставляем как есть)
+  const oauthLogin = useCallback(async (provider: string, _token?: string) => {
     try {
       setAuthState((prev) => ({
         ...prev,
@@ -121,12 +142,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       }));
 
-      // TODO: Replace with actual API call
       const mockUser: User = {
-        id: '3',
+        id: Math.random(),
         email: `user@${provider}.com`,
-        name: 'OAuth User',
-        provider: provider as any,
+        username: 'OAuth User',
+        provider: provider as 'email' | 'google' | 'github' | 'microsoft',
       };
 
       setAuthState({
@@ -137,13 +157,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isSuccess: true,
       });
 
-      localStorage.setItem('auth_token', token);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem('isAuthenticated', 'true');
     } catch (err) {
       handleError(err instanceof Error ? err.message : `${provider} login failed`);
     }
   }, []);
 
-  const logout = useCallback(() => {
+  // ЛОГАУТ
+  const logout = useCallback(async () => {
+    try {
+      // 🔴 РЕАЛЬНЫЙ API ВЫЗОВ!
+      await authAPI.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+
     setAuthState({
       user: null,
       isAuthenticated: false,
@@ -151,7 +180,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       error: null,
       isSuccess: false,
     });
-    localStorage.removeItem('auth_token');
+
+    localStorage.removeItem('user');
+    localStorage.removeItem('isAuthenticated');
   }, []);
 
   const value: AuthContextType = {

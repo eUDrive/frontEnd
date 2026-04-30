@@ -35,13 +35,13 @@ export const PersonalCabinetPage: React.FC = () => {
           <div className="cabinet-header-content">
             <div className="cabinet-avatar">
               {user.avatar ? (
-                <img src={user.avatar} alt={user.name} />
+                <img src={user.avatar} alt={user.username} />
               ) : (
-                <span>{user.name.charAt(0).toUpperCase()}</span>
+                <span>{user.username.charAt(0).toUpperCase()}</span>
               )}
             </div>
             <div className="cabinet-header-info">
-              <h1>Добро пожаловать, {user.name}!</h1>
+              <h1>Добро пожаловать, {user.username}!</h1>
               <p className="cabinet-email">{user.email}</p>
               {user.provider && (
                 <p className="cabinet-provider">Поставщик: {user.provider}</p>
@@ -94,7 +94,7 @@ export const PersonalCabinetPage: React.FC = () => {
               <div className="profile-card">
                 <div className="profile-field">
                   <label>Полное имя</label>
-                  <p>{user.name}</p>
+                  <p>{user.username}</p>
                 </div>
                 <div className="profile-field">
                   <label>E-mail адрес</label>
