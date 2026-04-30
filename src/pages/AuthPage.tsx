@@ -108,7 +108,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     setSignupErrors({});
     try {
-      await signup(signupEmail, signupPassword, signupName);
+      await signup(signupName, signupEmail, signupPassword);
       onClose();
     } catch (err) {
       // Error is handled in context
