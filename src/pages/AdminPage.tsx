@@ -5,19 +5,18 @@ import './AdminPage.css';
 function AdminPage() {
   const [formData, setFormData] = useState({
     // Product данные
-    brand: '',
-    model: '',
+    name: '',
     imageFile: null as File | null,
     imagePreview: '',
     category: 'Sport' as 'GT' | 'Touring' | 'Sport',
-    pricePerPackage: '',
+    price: '',
+    stock: '1',
     
     // ProductDescription данные
-    year: new Date().getFullYear(),
-    horsePower: '',
-    engineVolume: '',
-    acceleration: '',
     description: '',
+    height: '',
+    width: '',
+    length: '',
   });
 
   const [addedCars, setAddedCars] = useState<Car[]>([]);
@@ -28,8 +27,8 @@ function AdminPage() {
   ) => {
     const { name, value } = e.target;
 
-    if (name === 'year' || name === 'horsePower' || name === 'pricePerPackage' || name === 'engineVolume') {
-      setFormData({ ...formData, [name]: value ? parseInt(value) : '' });
+    if (name === 'price' || name === 'stock' || name === 'height' || name === 'width' || name === 'length') {
+      setFormData({ ...formData, [name]: value ? parseFloat(value) : '' });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -54,10 +53,8 @@ function AdminPage() {
     e.preventDefault();
 
     if (
-      !formData.brand ||
-      !formData.model ||
-      !formData.horsePower ||
-      !formData.pricePerPackage ||
+      !formData.name ||
+      !formData.price ||
       !formData.imagePreview
     ) {
       alert('Пожалуйста, заполните все обязательные поля');
@@ -66,52 +63,68 @@ function AdminPage() {
 
     // Структура для отправки на backend
     const productData = {
-      // Product
-      brand: formData.brand,
-      model: formData.model,
-      imageUrl: formData.imagePreview,
+      name: formData.name,
+      price: Number(formData.price),
+      stock: Number(formData.stock),
       category: formData.category,
-      pricePerPackage: Number(formData.pricePerPackage),
-      
-      // ProductDescription
-      year: formData.year,
-      horsePower: Number(formData.horsePower),
-      engineVolume: formData.engineVolume ? Number(formData.engineVolume) : null,
-      acceleration: formData.acceleration ? Number(formData.acceleration) : null,
+      status: "Active",
       description: formData.description,
+      images: [
+        {
+          url: formData.imagePreview,
+        }
+      ],
+      descriptionAdvanced: {
+        h: formData.height ? Number(formData.height) : 0,
+        w: formData.width ? Number(formData.width) : 0,
+        l: formData.length ? Number(formData.length) : 0,
+      }
     };
 
     const newCar: Car = {
       id: addedCars.length > 0 ? Math.max(...addedCars.map(c => c.id)) + 1 : 1,
-      brand: formData.brand,
-      model: formData.model,
-      year: formData.year,
-      horsePower: Number(formData.horsePower),
+      name: formData.name,
+      price: Number(formData.price),
+      stock: Number(formData.stock),
       category: formData.category,
-      imageUrl: formData.imagePreview,
-      pricePerPackage: Number(formData.pricePerPackage),
-      description: formData.description,
+      images: [
+        {
+          id: 1,
+          url: formData.imagePreview,
+          productId: 0
+        }
+      ],
+      description: formData.description ? {
+        id: 1,
+        description: formData.description,
+        descriptionAdvanced: {
+          id: 1,
+          h: formData.height ? Number(formData.height) : 0,
+          w: formData.width ? Number(formData.width) : 0,
+          l: formData.length ? Number(formData.length) : 0,
+        }
+      } : undefined,
+      status: "Active"
     };
 
     setAddedCars([...addedCars, newCar]);
-    setSuccessMessage(`✓ Автомобиль "${newCar.brand} ${newCar.model}" успешно добавлен!`);
+    setSuccessMessage(`✓ Автомобиль "${newCar.name}" успешно добавлен!`);
     
     // TODO: Отправить productData на backend
     console.log('Данные для отправки на backend:', productData);
 
     // Очистка формы
     setFormData({
-      brand: '',
-      model: '',
+      name: '',
       imageFile: null,
       imagePreview: '',
       category: 'Sport',
-      pricePerPackage: '',
-      year: new Date().getFullYear(),
-      horsePower: '',
-      engineVolume: '',
-      acceleration: '',
+      price: '',
+      stock: '1',
       description: '',
+      height: '',
+      width: '',
+      length: '',
     });
 
     // Скрыть сообщение через 3 секунды
@@ -148,27 +161,14 @@ function AdminPage() {
               <h3 className="subsection-title">📦 Данные продукта (Product)</h3>
               <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="brand">Марка *</label>
+                <label htmlFor="name">Название продукта *</label>
                 <input
                   type="text"
-                  id="brand"
-                  name="brand"
-                  value={formData.brand}
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="Марка"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="model">Модель *</label>
-                <input
-                  type="text"
-                  id="model"
-                  name="model"
-                  value={formData.model}
-                  onChange={handleInputChange}
-                  placeholder="Модель"
+                  placeholder="Название"
                   required
                 />
               </div>
@@ -188,70 +188,73 @@ function AdminPage() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="pricePerPackage">Цена за пакет (€) *</label>
+                <label htmlFor="price">Цена ($) *</label>
                 <input
                   type="number"
-                  id="pricePerPackage"
-                  name="pricePerPackage"
-                  value={formData.pricePerPackage}
+                  id="price"
+                  name="price"
+                  value={formData.price}
                   onChange={handleInputChange}
                   placeholder="Цена"
+                  step="0.01"
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="stock">Количество в наличии</label>
+                <input
+                  type="number"
+                  id="stock"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleInputChange}
+                  placeholder="Количество"
+                  min="0"
                 />
               </div>
             </div>
             </div>
 
             <div className="form-subsection">
-              <h3 className="subsection-title">📋 Данные описания (ProductDescription)</h3>
+              <h3 className="subsection-title">📋 Данные производительности (Performance Specs)</h3>
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="year">Год выпуска</label>
+                  <label htmlFor="height">Мощность (л.с.)</label>
                   <input
                     type="number"
-                    id="year"
-                    name="year"
-                    value={formData.year}
+                    id="height"
+                    name="height"
+                    value={formData.height}
                     onChange={handleInputChange}
-                    min="2000"
-                    max={new Date().getFullYear() + 1}
+                    placeholder="Horsepower"
+                    min="0"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="horsePower">Мощность (л.с.) *</label>
+                  <label htmlFor="width">Вес (kg)</label>
                   <input
                     type="number"
-                    id="horsePower"
-                    name="horsePower"
-                    value={formData.horsePower}
+                    id="width"
+                    name="width"
+                    value={formData.width}
                     onChange={handleInputChange}
-                    placeholder="Л.С."
-                    required
+                    placeholder="Weight"
+                    min="0"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="engineVolume">Объем двигателя (cc)</label>
+                  <label htmlFor="length">Разгон 0-100 (сек × 10)</label>
                   <input
                     type="number"
-                    id="engineVolume"
-                    name="engineVolume"
-                    value={formData.engineVolume}
+                    id="length"
+                    name="length"
+                    value={formData.length}
                     onChange={handleInputChange}
-                    placeholder="Объем куб.мм"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="acceleration">Разгон 0-100 (сек)</label>
-                  <input
-                    type="number"
-                    id="acceleration"
-                    name="acceleration"
-                    value={formData.acceleration}
-                    onChange={handleInputChange}
-                    placeholder="Разгон 0-100"
+                    placeholder="Acceleration time in tenths"
+                    min="0"
                     step="0.1"
                   />
                 </div>
@@ -308,26 +311,31 @@ function AdminPage() {
             <div className="cars-grid">
               {addedCars.map((car) => (
                 <div key={car.id} className="car-card">
-                  {car.imageUrl && (
-                    <img src={car.imageUrl} alt={`${car.brand} ${car.model}`} className="car-image" />
+                  {car.images && car.images.length > 0 && (
+                    <img src={car.images[0].url} alt={car.name} className="car-image" />
                   )}
                   <div className="car-info">
-                    <h3>{car.brand} {car.model}</h3>
+                    <h3>{car.name}</h3>
                     <div className="car-details-grid">
                       <p className="detail-item">
-                        <span className="detail-label">Год:</span> {car.year}
+                        <span className="detail-label">Цена:</span> ${car.price}
                       </p>
                       <p className="detail-item">
-                        <span className="detail-label">Мощность:</span> {car.horsePower} л.с.
+                        <span className="detail-label">Количество:</span> {car.stock}
                       </p>
                       <p className="detail-item">
                         <span className="detail-label">Категория:</span> {car.category}
                       </p>
                       <p className="detail-item">
-                        <span className="detail-label">Цена:</span> €{car.pricePerPackage}
+                        <span className="detail-label">Статус:</span> {car.status}
                       </p>
                     </div>
-                    {car.description && <p className="car-description">{car.description}</p>}
+                    {car.description && <p className="car-description">{car.description.description}</p>}
+                    {car.description?.descriptionAdvanced && (
+                      <div className="car-dimensions">
+                        <p>Мощность: {car.description.descriptionAdvanced.h} л.с. | Вес: {car.description.descriptionAdvanced.w} kg | 0-100: {(car.description.descriptionAdvanced.l / 10).toFixed(1)}s</p>
+                      </div>
+                    )}
                     <button
                       className="btn btn-danger btn-small"
                       onClick={() => handleDeleteCar(car.id)}

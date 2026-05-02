@@ -11,8 +11,7 @@ function CatalogPage() {
 
     // Фильтрация по категории и поиску
     const filteredCars = cars.filter(car => {
-        const matchesSearch = car.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            car.model.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = car.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'Все' || car.category === selectedCategory;
         
         return matchesSearch && matchesCategory;
