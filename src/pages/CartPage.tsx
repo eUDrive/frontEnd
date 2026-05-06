@@ -23,7 +23,7 @@ function getItemPrice(item: CartItem): number {
         return cert.price;
     }
     const car = item as any;
-    return car.pricePerPackage;
+    return car.price;
 }
 
 function getItemName(item: CartItem): string {
@@ -32,7 +32,7 @@ function getItemName(item: CartItem): string {
         return cert.title;
     }
     const car = item as any;
-    return `${car.brand} ${car.model}`;
+    return car.name;
 }
 
 function CartPage() {
@@ -207,13 +207,13 @@ function CartPage() {
                                     <span className="items-count">{cartItems.length} {cartItems.length === 1 ? 'товар' : 'товаров'}</span>
                                 </div>
                                 
-                                <div className="items-list">
+                            <div className="items-list">
                                     {cartItems.map((cartItem) => (
                                         <div key={cartItem.item.id} className="cart-item-card">
                                             <div className="item-image-wrapper">
                                                 {!isCertificate(cartItem.item) && (
                                                     <img 
-                                                        src={(cartItem.item as any).imageUrl}
+                                                        src={(cartItem.item as any).images?.[0]?.url || '/images/placeholder.png'}
                                                         alt={getItemName(cartItem.item)}
                                                         className="item-image"
                                                     />
@@ -230,7 +230,7 @@ function CartPage() {
                                                     <div className="item-info">
                                                         <h4 className="item-name">{getItemName(cartItem.item)}</h4>
                                                         {!isCertificate(cartItem.item) && (
-                                                            <p className="item-specs">{(cartItem.item as any).year} • {(cartItem.item as any).horsePower} л.с.</p>
+                                                            <p className="item-specs">Category: {(cartItem.item as any).category} • Stock: {(cartItem.item as any).stock}</p>
                                                         )}
                                                         {isCertificate(cartItem.item) && (
                                                             <p className="item-specs">{(cartItem.item as any).duration}</p>

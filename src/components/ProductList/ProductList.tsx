@@ -21,13 +21,7 @@ function ProductList({ cars }: ProductListProps) {
             {cars.map((car) => (
                 <ProductCard
                     key={car.id}
-                    id={car.id}
-                    name={`${car.brand} ${car.model}`}
-                    image={car.imageUrl}
-                    price={car.pricePerPackage}
-                    horsepower={car.horsePower}
-                    year={car.year}
-                    category={car.category}
+                    product={car}
                 />
             ))}
         </div>
