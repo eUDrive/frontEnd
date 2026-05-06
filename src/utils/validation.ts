@@ -25,21 +25,6 @@ export const validatePassword = (password: string): ValidationResult => {
   if (!password) {
     return { isValid: false, message: 'Password is required' };
   }
-  
-  if (password.length < 8) {
-    return { isValid: false, message: 'Password must be at least 8 characters' };
-  }
-  
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumbers = /\d/.test(password);
-
-  if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
-    return {
-      isValid: false,
-      message: 'Password must contain uppercase, lowercase, and numbers',
-    };
-  }
 
   return { isValid: true, message: '' };
 };

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { authAPI } from '../utils/api';
 
 export interface User {
@@ -31,10 +31,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
-    isLoading: false,
+    isLoading: true,
     error: null,
     isSuccess: false,
   });
+
+  // Проверить сессию при монтировании
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        // Сначала проверим localStorage
+        const savedUser = localStorage.getItem('user');
+        const savedAuth = localStorage.getItem('isAuthenticated');
+
+        if (savedUser && savedAuth === 'true') {
+          const user = JSON.parse(savedUser);
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+            isSuccess: true,
+          });
+          return;
+        }
+
+        // Если в localStorage ничего нет, проверим на бэкенде
+        // (может остаться cookie сессия)
+        const response = await fetch('https://localhost:7206/api/auth/check', {
+          method: 'GET',
+          credentials: 'include',
+        }).then(r => r.json());
+
+        if (response.isSuccess && response.data?.user) {
+          const user = response.data.user;
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+            isSuccess: true,
+          });
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('isAuthenticated', 'true');
+        } else {
+          setAuthState((prev) => ({
+            ...prev,
+            isLoading: false,
+          }));
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+        }));
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const handleError = (error: string) => {
     setAuthState((prev) => ({
@@ -61,7 +117,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       }));
 
-      // 🔴 РЕАЛЬНЫЙ API ВЫЗОВ!
       const response = await authAPI.login({ email, password });
 
       if (!response.isSuccess) {
@@ -69,7 +124,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Создаём объект пользователя
       const user: User = {
         id: response.data?.id || 0,
         username: response.data?.username || email.split('@')[0],
@@ -85,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isSuccess: true,
       });
 
-      // Сохраняем в localStorage (на продакшене используй httpOnly cookies)
+      // 🔴 Сохранить в localStorage
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('isAuthenticated', 'true');
     } catch (err) {
@@ -102,7 +156,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: null,
       }));
 
-      // 🔴 РЕАЛЬНЫЙ API ВЫЗОВ!
       const response = await authAPI.register({ username, email, password });
 
       if (!response.isSuccess) {
@@ -110,7 +163,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // После регистрации сразу логиним пользователя
       const user: User = {
         id: response.data?.id || 0,
         username: response.data?.username || username,
@@ -133,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // OAuth (пока оставляем как есть)
+  // OAuth
   const oauthLogin = useCallback(async (provider: string, _token?: string) => {
     try {
       setAuthState((prev) => ({
@@ -167,7 +219,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ЛОГАУТ
   const logout = useCallback(async () => {
     try {
-      // 🔴 РЕАЛЬНЫЙ API ВЫЗОВ!
       await authAPI.logout();
     } catch (err) {
       console.error('Logout error:', err);
