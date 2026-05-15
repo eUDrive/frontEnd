@@ -58,9 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Если в localStorage ничего нет, проверим на бэкенде
         // (может остаться cookie сессия)
-        const response = await fetch('https://localhost:7206/api/auth/check', {
+        const response = await fetch('/api/auth/check', {
           method: 'GET',
-          credentials: 'include',
         }).then(r => r.json());
 
         if (response.isSuccess && response.data?.user) {
@@ -118,6 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }));
 
       const response = await authAPI.login({ email, password });
+      console.log('Login response:', response); // Отладка
 
       if (!response.isSuccess) {
         handleError(response.message || 'Login failed');
@@ -143,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('isAuthenticated', 'true');
     } catch (err) {
+      console.error('Login error:', err); // Отладка
       handleError(err instanceof Error ? err.message : 'Login failed');
     }
   }, []);

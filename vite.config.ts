@@ -10,4 +10,13 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://172.31.16.1:7206",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

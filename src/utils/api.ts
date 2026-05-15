@@ -12,8 +12,9 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  isSuccess: boolean;
-  message: string;
+  token: string;
+  isSuccess?: boolean;
+  message?: string;
   data?: {
     id: number;
     username: string;
@@ -24,14 +25,24 @@ export interface AuthResponse {
 async function apiCall<T>(
   endpoint: string,
   method: string = 'GET',
-  body?: unknown
+  body?: unknown,
+  includeAuth: boolean = true
 ): Promise<T> {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  // Only add Authorization header if we have a token and it's not login/register
+  if (includeAuth) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
   const options: RequestInit = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
+    headers,
   };
 
   if (body) {
@@ -49,12 +60,46 @@ async function apiCall<T>(
 }
 
 export const authAPI = {
-  login: (credentials: LoginRequest) =>
-    apiCall<AuthResponse>('/auth/login', 'POST', credentials),
+  login: async (credentials: LoginRequest) => {
+    const response = await apiCall<AuthResponse>('/auth/login', 'POST', credentials, false);
+    console.log('Backend login response:', response);
+    
+    // Сохранить токен в localStorage
+    if (response.token) {
+      localStorage.setItem('token', response.token);
+      console.log('✅ Token saved to localStorage');
+    }
+    
+    // Преобразовать ответ в единый формат
+    return {
+      isSuccess: true,
+      token: response.token,
+      message: 'Login successful',
+      data: response.data,
+    };
+  },
 
-  register: (userData: RegisterRequest) =>
-    apiCall<AuthResponse>('/auth/register', 'POST', userData),
+  register: async (userData: RegisterRequest) => {
+    const response = await apiCall<AuthResponse>('/auth/register', 'POST', userData, false);
+    console.log('Backend register response:', response);
+    
+    // Сохранить токен в localStorage если бэкенд его вернул
+    if (response.token) {
+      localStorage.setItem('token', response.token);
+      console.log('✅ Token saved to localStorage');
+    }
+    
+    return {
+      isSuccess: true,
+      token: response.token,
+      message: 'Registration successful',
+      data: response.data,
+    };
+  },
 
-  logout: () =>
-    apiCall<AuthResponse>('/auth/logout', 'POST'),
+  logout: () => {
+    localStorage.removeItem('token');
+    console.log('✅ Logged out');
+    return apiCall<AuthResponse>('/auth/logout', 'POST');
+  },
 };
