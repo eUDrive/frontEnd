@@ -1,0 +1,243 @@
+.admin-tab {
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+.admin-tab h2 {
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 24px;
+  border-bottom: 3px solid #6366f1;
+  padding-bottom: 15px;
+}
+
+/* ==================== ФОРМА ==================== */
+.admin-form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  border-left: 5px solid #6366f1;
+  margin-bottom: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+.form-group label::after {
+  content: '*';
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background-color: #f9fafb;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #9ca3af;
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-group select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+/* ==================== КНОПКИ ==================== */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background-color: #6366f1;
+  color: white;
+  min-width: 200px;
+  font-size: 16px;
+}
+
+.btn-primary:hover {
+  background-color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+.btn-small {
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-right: 5px;
+  margin-top: 0;
+}
+
+.btn-info {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-info:hover {
+  background-color: #2563eb;
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* ==================== ТАБЛИЦА ==================== */
+.products-list {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.products-list h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 18px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 15px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.admin-table thead {
+  background-color: #f3f4f6;
+}
+
+.admin-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.admin-table td {
+  padding: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #555;
+}
+
+.admin-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ==================== ПУСТАЯ ТАБЛИЦА ==================== */
+.products-list p {
+  text-align: center;
+  color: #9ca3af;
+  padding: 40px 20px;
+  font-size: 16px;
+}
+
+/* ==================== АДАПТИВНОСТЬ ==================== */
+@media (max-width: 768px) {
+  .admin-tab {
+    padding: 15px;
+  }
+
+  .admin-form {
+    padding: 20px;
+  }
+
+  .products-list {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    font-size: 12px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 10px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .btn-primary {
+    min-width: 150px;
+  }
+}
