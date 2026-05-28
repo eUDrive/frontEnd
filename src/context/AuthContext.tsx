@@ -7,6 +7,7 @@ export interface User {
   username: string;
   avatar?: string;
   provider?: 'email' | 'google' | 'github' | 'microsoft';
+  role?: string;
 }
 
 export interface AuthState {
@@ -128,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: response.data?.id || 0,
         username: response.data?.username || email.split('@')[0],
         email: response.data?.email || email,
+        role: response.data?.role === 1 ? 'Admin' : 'User',
         provider: 'email',
       };
 
@@ -168,6 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: response.data?.id || 0,
         username: response.data?.username || username,
         email: response.data?.email || email,
+        role: response.data?.role === 1 ? 'Admin' : 'User',
         provider: 'email',
       };
 
