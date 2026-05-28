@@ -30,12 +30,14 @@ export const productsAPI = {
     credentials: 'include',
     body: JSON.stringify(data)
   }).then(r => r.json()),
-  
-  update: (id: number, data: any) => fetch(`${API_BASE}/product/${id}`, {
+
+  update: (id: number, formData: FormData) => fetch(`${API_BASE}/product/${id}`, {
     method: 'PUT',
-    headers: getAuthHeaders(),
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+    },
     credentials: 'include',
-    body: JSON.stringify(data)
+    body: formData
   }).then(r => r.json()),
   
   delete: (id: number) => fetch(`${API_BASE}/product/${id}`, {

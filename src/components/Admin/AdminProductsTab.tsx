@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
-import { productsAPI } from '../../utils/adminApi';
+import { productsAPI, categoriesAPI } from '../../utils/adminApi';
 import './AdminProductsTab.css';
+import { ImageUploader } from './ImageUploader';
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 interface Product {
   id: number;
   name: string;
   price: number;
   stock: number;
-  category: string;
+  categoryId: number;
   description?: any;
   images: any[];
   status: string;
@@ -15,16 +21,22 @@ interface Product {
 
 export function AdminProductsTab() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);  // ← ДОБАВЬ
   const [isLoading, setIsLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
-    name: '', price: '', stock: '', category: 'Sport',
-    description: '', images: [] as any[]
+    name: '', 
+    price: '', 
+    stock: '', 
+    categoryId: '1', 
+    description: '', 
+    images: [] as any[]
   });
 
-  // Загрузить продукты при монтировании
+  // Загрузить продукты и категории при монтировании
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
 
   const loadProducts = async () => {
@@ -39,6 +51,16 @@ export function AdminProductsTab() {
     setIsLoading(false);
   };
 
+  const loadCategories = async () => {
+    try {
+      const response = await categoriesAPI.getAll();
+      setCategories(response);
+      console.log('Категории загружены:', response);
+    } catch (error) {
+      console.error('Ошибка загрузки категорий:', error);
+    }
+  };
+
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.price) {
@@ -51,25 +73,30 @@ export function AdminProductsTab() {
         name: formData.name,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        category: formData.category,
-        description: formData.description,
-        images: formData.images,
+        categoryId: parseInt(formData.categoryId),
+        description: formData.description || '',
+        images: formData.images.map(img => ({
+          url: img.url,
+          productId: 0
+        }))
       };
+
+      console.log('📤 Отправляю продукт:', newProduct.name);
 
       if (editingId) {
         await productsAPI.update(editingId, { ...newProduct, id: editingId });
-        alert('Продукт обновлён');
+        alert('✅ Продукт обновлён');
       } else {
         await productsAPI.create(newProduct);
-        alert('Продукт добавлен');
+        alert('✅ Продукт добавлен');
       }
 
-      setFormData({ name: '', price: '', stock: '', category: 'Sport', description: '', images: [] });
+      setFormData({ name: '', price: '', stock: '', categoryId: '1', description: '', images: [] });
       setEditingId(null);
       loadProducts();
     } catch (error) {
-      console.error('Ошибка:', error);
-      alert('Ошибка при сохранении продукта');
+      console.error('❌ Ошибка:', error);
+      alert('❌ Ошибка: ' + (error instanceof Error ? error.message : 'Unknown'));
     }
   };
 
@@ -90,7 +117,7 @@ export function AdminProductsTab() {
       name: product.name,
       price: product.price.toString(),
       stock: product.stock.toString(),
-      category: product.category,
+      categoryId: product.categoryId.toString(),
       description: product.description?.description || '',
       images: product.images,
     });
@@ -135,12 +162,19 @@ export function AdminProductsTab() {
         <div className="form-group">
           <label>Категория</label>
           <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            value={formData.categoryId}
+            onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+            required
           >
-            <option value="Sport">Sport</option>
-            <option value="GT">GT</option>
-            <option value="Touring">Touring</option>
+            {categories.length === 0 ? (
+              <option>Загрузка категорий...</option>
+            ) : (
+              categories.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))
+            )}
           </select>
         </div>
 
@@ -152,13 +186,20 @@ export function AdminProductsTab() {
           />
         </div>
 
+        <div className="form-group">
+          <ImageUploader
+            images={formData.images}
+            onImagesChange={(images) => setFormData({ ...formData, images })}
+          />
+        </div>
+
         <button type="submit" className="btn btn-primary">
           {editingId ? '✏️ Обновить' : '➕ Добавить'} продукт
         </button>
         {editingId && (
           <button type="button" className="btn btn-secondary" onClick={() => {
             setEditingId(null);
-            setFormData({ name: '', price: '', stock: '', category: 'Sport', description: '', images: [] });
+            setFormData({ name: '', price: '', stock: '', categoryId: '1', description: '', images: [] });
           }}>
             Отмена
           </button>
@@ -191,7 +232,9 @@ export function AdminProductsTab() {
                   <td>{product.name}</td>
                   <td>${product.price}</td>
                   <td>{product.stock}</td>
-                  <td>{product.category}</td>
+                  <td>
+                    {categories.find(c => c.id === product.categoryId)?.name || 'Unknown'}
+                  </td>
                   <td>{product.status}</td>
                   <td>
                     <button className="btn btn-small btn-info" onClick={() => handleEditProduct(product)}>
