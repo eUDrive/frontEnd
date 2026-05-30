@@ -40,7 +40,7 @@ function CartPage() {
     const { user, isAuthenticated } = useAuth();
     const [paymentData, setPaymentData] = useState<PaymentFormData>({
         email: '',
-        cardholderName: isAuthenticated ? user?.name || '' : '',
+        cardholderName: isAuthenticated ? user?.username || '' : '',
         cardNumber: '',
         expiryDate: '',
         cvv: '',
@@ -125,7 +125,7 @@ function CartPage() {
                 setOrderPlaced(false);
                 setPaymentData({
                     email: '',
-                    cardholderName: isAuthenticated ? user?.name || '' : '',
+                    cardholderName: isAuthenticated ? user?.username || '' : '',
                     cardNumber: '',
                     expiryDate: '',
                     cvv: '',
@@ -321,7 +321,7 @@ function CartPage() {
                                         <div className="user-info">
                                             <div className="user-item">
                                                 <span className="user-label">Имя:</span>
-                                                <span className="user-value">{user?.name}</span>
+                                                <span className="user-value">{user?.username}</span>
                                             </div>
                                             <div className="user-item">
                                                 <span className="user-label">Email:</span>

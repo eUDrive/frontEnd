@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { authAPI } from '../utils/api';
+import { authAPI } from '../api/index';
 
 export interface User {
   id: number;

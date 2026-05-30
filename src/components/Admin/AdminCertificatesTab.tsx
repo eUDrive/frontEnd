@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { certificatesAPI } from '../../utils/adminApi';
+import { certificatesAPI } from '../../api/index';
 import './AdminCertificatesTab.css';
 
 interface Certificate {
   id: number;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  stock: number;
-  createdAt: string;
-  isActive: boolean;
+  stock?: number;
+  createdAt?: string;
+  isActive?: boolean;
 }
 
 export function AdminCertificatesTab() {
@@ -31,8 +31,8 @@ export function AdminCertificatesTab() {
   const loadCertificates = async () => {
     setIsLoading(true);
     try {
-      const response = await certificatesAPI.getAll();
-      setCertificates(response.data || response);
+      const certificates = await certificatesAPI.getAll();
+      setCertificates(certificates);
     } catch (error) {
       console.error('Ошибка загрузки сертификатов:', error);
       alert('Ошибка при загрузке сертификатов');
@@ -57,7 +57,7 @@ export function AdminCertificatesTab() {
       };
 
       if (editingId) {
-        await certificatesAPI.update({ ...newCertificate, id: editingId });
+        await certificatesAPI.update(editingId, newCertificate);
         alert('Сертификат обновлён');
       } else {
         await certificatesAPI.create(newCertificate);
@@ -88,10 +88,10 @@ export function AdminCertificatesTab() {
   const handleEditCertificate = (certificate: Certificate) => {
     setFormData({
       name: certificate.name,
-      description: certificate.description,
+      description: certificate.description || '',
       price: certificate.price.toString(),
-      stock: certificate.stock.toString(),
-      isActive: certificate.isActive,
+      stock: (certificate.stock || 0).toString(),
+      isActive: certificate.isActive || false,
     });
     setEditingId(certificate.id);
   };
@@ -188,9 +188,9 @@ export function AdminCertificatesTab() {
                   <td>{cert.id}</td>
                   <td>{cert.name}</td>
                   <td>${cert.price}</td>
-                  <td>{cert.stock}</td>
+                  <td>{cert.stock || 0}</td>
                   <td>{cert.isActive ? '✅ Активен' : '❌ Неактивен'}</td>
-                  <td>{new Date(cert.createdAt).toLocaleDateString()}</td>
+                  <td>{cert.createdAt ? new Date(cert.createdAt).toLocaleDateString() : '-'}</td>
                   <td>
                     <button className="btn btn-small btn-info" onClick={() => handleEditCertificate(cert)}>
                       ✏️ Изменить

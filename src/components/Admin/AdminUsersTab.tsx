@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { usersAPI } from '../../utils/adminApi';
+import { usersAPI } from '../../api/index';
 import './AdminUsersTab.css';
 
 interface User {
@@ -21,10 +21,9 @@ export function AdminUsersTab() {
   const loadUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await usersAPI.getAll();
-      const userData = response.data || response;
-      setUsers(userData);
-      setFilteredUsers(userData);
+      const users = await usersAPI.getAll();
+      setUsers(users);
+      setFilteredUsers(users);
     } catch (error) {
       console.error('Ошибка загрузки пользователей:', error);
       alert('Ошибка при загрузке пользователей');

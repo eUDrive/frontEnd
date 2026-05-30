@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { productsAPI, categoriesAPI } from '../../utils/adminApi';
+import { productsAPI, categoriesAPI } from '../../api/index';
 import './AdminProductsTab.css';
 import { ImageUploader } from './ImageUploader';
 
@@ -12,11 +12,11 @@ interface Product {
   id: number;
   name: string;
   price: number;
-  stock: number;
+  stock?: number;
   categoryId: number;
   description?: any;
-  images: any[];
-  status: string;
+  images?: any[];
+  status?: string;
 }
 
 export function AdminProductsTab() {
@@ -42,8 +42,8 @@ export function AdminProductsTab() {
   const loadProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await productsAPI.getAll();
-      setProducts(response.data || response);
+      const products = await productsAPI.getAll();
+      setProducts(products);
     } catch (error) {
       console.error('Ошибка загрузки продуктов:', error);
       alert('Ошибка при загрузке продуктов');
@@ -53,9 +53,9 @@ export function AdminProductsTab() {
 
   const loadCategories = async () => {
     try {
-      const response = await categoriesAPI.getAll();
-      setCategories(response);
-      console.log('Категории загружены:', response);
+      const categories = await categoriesAPI.getAll();
+      setCategories(categories);
+      console.log('Категории загружены:', categories);
     } catch (error) {
       console.error('Ошибка загрузки категорий:', error);
     }
@@ -116,10 +116,10 @@ export function AdminProductsTab() {
     setFormData({
       name: product.name,
       price: product.price.toString(),
-      stock: product.stock.toString(),
+      stock: (product.stock || 0).toString(),
       categoryId: product.categoryId.toString(),
       description: product.description?.description || '',
-      images: product.images,
+      images: product.images || [],
     });
     setEditingId(product.id);
   };
