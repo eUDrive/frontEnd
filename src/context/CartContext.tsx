@@ -1,9 +1,8 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { Car } from '../data/products';
-import type { Certificate } from '../data/certificates';
+import type { Product, Certificate } from '../api/index';
 
-export type CartItem = Car | Certificate;
+export type CartItem = Product | Certificate;
 
 export interface CartItemWithQuantity {
     item: CartItem;

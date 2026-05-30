@@ -19,16 +19,34 @@ export interface User {
   updatedAt?: string;
 }
 
+export interface ProductDescription {
+  id?: number;
+  description?: string;
+  productId?: number;
+  descriptionAdvanced?: {
+    id?: number;
+    h?: number;
+    w?: number;
+    l?: number;
+  };
+}
+
+export interface ProductImage {
+  id?: number;
+  url: string;
+  productId?: number;
+}
+
 export interface Product {
   id: number;
   name: string;
-  description?: string;
+  description?: string | ProductDescription;
   price: number;
   categoryId: number;
   image?: string;
   stock?: number;
-  images?: any[];
-  status?: string;
+  images?: ProductImage[] | string[];
+  status?: string | number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -195,7 +213,9 @@ export const certificatesAPI = {
   },
 
   getById: async (id: number) => {
-    const res = await http.get<Certificate>(`/api/certificate/${id}`);
+    const res = await http.get<Certificate>("/api/certificate/id", {
+      params: { id },
+    });
     return res.data;
   },
 
@@ -204,13 +224,15 @@ export const certificatesAPI = {
     return res.data;
   },
 
-  update: async (id: number, certificate: any) => {
-    const res = await http.put<Certificate>(`/api/certificate/${id}`, certificate);
+  update: async (certificate: any) => {
+    const res = await http.put<Certificate>("/api/certificate", certificate);
     return res.data;
   },
 
   delete: async (id: number) => {
-    await http.delete(`/api/certificate/${id}`);
+    await http.delete("/api/certificate/id", {
+      params: { id },
+    });
   },
 };
 
@@ -253,14 +275,28 @@ export const usersAPI = {
 // ORDERS API
 // ============================================
 
+export interface CartItemRequest {
+  userId: number;
+  item: {
+    id?: number;
+    orderId?: number;
+    type: number;
+    itemId: number;
+    quantity: number;
+    priceAtPurchase: number;
+    createdAt: string;
+  };
+  currentPrice: number;
+}
+
 export const ordersAPI = {
-  createOrder: async (items: CartItem[]) => {
-    const res = await http.post<Order>("/api/order/add", items);
+  addToCart: async (cartItem: CartItemRequest) => {
+    const res = await http.post("/api/order/cart/add", cartItem);
     return res.data;
   },
 
   getUserCart: async (userId: number) => {
-    const res = await http.get<OrderItem[]>(`/api/order/cart/${userId}`);
+    const res = await http.get<Order>(`/api/order/cart/${userId}`);
     return res.data;
   },
 

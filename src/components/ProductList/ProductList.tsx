@@ -1,9 +1,9 @@
 import ProductCard from '../ProductCard/ProductCard';
-import type { Car } from '../../data/products';
+import type { Product } from '../../api';
 import './ProductList.css';
 
 interface ProductListProps {
-    cars: Car[];
+    cars: Product[];
 }
 
 function ProductList({ cars }: ProductListProps) {

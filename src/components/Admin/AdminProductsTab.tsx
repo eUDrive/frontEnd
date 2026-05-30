@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { productsAPI, categoriesAPI } from '../../api/index';
+import { productsAPI, categoriesAPI, type Product as APIProduct } from '../../api/index';
 import './AdminProductsTab.css';
 import { ImageUploader } from './ImageUploader';
 
@@ -8,15 +8,8 @@ interface Category {
   name: string;
 }
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  stock?: number;
-  categoryId: number;
-  description?: any;
-  images?: any[];
-  status?: string;
+interface Product extends APIProduct {
+  status?: string | number;
 }
 
 export function AdminProductsTab() {
@@ -72,19 +65,14 @@ export function AdminProductsTab() {
       const newProduct = {
         name: formData.name,
         price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
         categoryId: parseInt(formData.categoryId),
         description: formData.description || '',
-        images: formData.images.map(img => ({
-          url: img.url,
-          productId: 0
-        }))
       };
 
       console.log('📤 Отправляю продукт:', newProduct.name);
 
       if (editingId) {
-        await productsAPI.update(editingId, { ...newProduct, id: editingId });
+        await productsAPI.update(editingId, newProduct);
         alert('✅ Продукт обновлён');
       } else {
         await productsAPI.create(newProduct);
@@ -113,12 +101,16 @@ export function AdminProductsTab() {
   };
 
   const handleEditProduct = (product: Product) => {
+    const desc = typeof product.description === 'string' 
+      ? product.description 
+      : (product.description as any)?.description || '';
+    
     setFormData({
       name: product.name,
       price: product.price.toString(),
       stock: (product.stock || 0).toString(),
       categoryId: product.categoryId.toString(),
-      description: product.description?.description || '',
+      description: desc,
       images: product.images || [],
     });
     setEditingId(product.id);

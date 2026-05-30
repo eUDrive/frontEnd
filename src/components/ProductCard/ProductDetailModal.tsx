@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { Car } from '../../data/products';
+import type { Product } from '../../api/index';
 import './ProductDetailModal.css';
 
 interface ProductDetailModalProps {
     isOpen: boolean;
-    product: Car;
+    product: Product;
     onClose: () => void;
     onBook: () => void;
     isBooked: boolean;
@@ -22,14 +22,22 @@ function ProductDetailModal({
 
     if (!isOpen) return null;
 
-    const images = product.images || [];
+    // Получить изображения - либо из product.images, либо использовать product.image
+    const images = product.images && product.images.length > 0 
+        ? product.images 
+        : product.image 
+        ? [{ url: product.image } as any] 
+        : [];
+    
     const currentImage = images.length > 0 ? images[currentImageIndex] : null;
 
     const nextImage = () => {
+        if (images.length === 0) return;
         setCurrentImageIndex((prev) => (prev + 1) % images.length);
     };
 
     const prevImage = () => {
+        if (images.length === 0) return;
         setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
@@ -43,9 +51,9 @@ function ProductDetailModal({
         }
     };
 
-    if (!currentImage) {
-        return null;
-    }
+    const displayImage = currentImage 
+        ? (typeof currentImage === 'string' ? currentImage : currentImage.url || '/images/placeholder.png')
+        : '/images/placeholder.png';
 
     return createPortal(
         <div className="product-detail-modal-backdrop" onClick={handleBackdropClick}>
@@ -55,7 +63,7 @@ function ProductDetailModal({
                 {/* Left Side - Image Gallery */}
                 <div className="product-detail-modal__gallery">
                     <div className="gallery__main-image">
-                        <img src={currentImage.url} alt={product.name} />
+                        <img src={displayImage} alt={product.name} />
                     </div>
 
                     {/* Image Navigation */}
@@ -78,15 +86,18 @@ function ProductDetailModal({
 
                             {/* Thumbnail Strip */}
                             <div className="gallery__thumbnails">
-                                {images.map((img, index) => (
-                                    <button
-                                        key={img.id}
-                                        className={`gallery__thumbnail ${index === currentImageIndex ? 'gallery__thumbnail--active' : ''}`}
-                                        onClick={() => goToImage(index)}
-                                    >
-                                        <img src={img.url} alt={`View ${index + 1}`} />
-                                    </button>
-                                ))}
+                                {images.map((img, index) => {
+                                    const imgUrl = typeof img === 'string' ? img : (img.url || '/images/placeholder.png');
+                                    return (
+                                        <button
+                                            key={index}
+                                            className={`gallery__thumbnail ${index === currentImageIndex ? 'gallery__thumbnail--active' : ''}`}
+                                            onClick={() => goToImage(index)}
+                                        >
+                                            <img src={imgUrl} alt={`View ${index + 1}`} />
+                                        </button>
+                                    );
+                                })}
                             </div>
 
                             {/* Image Counter */}
@@ -102,7 +113,7 @@ function ProductDetailModal({
                     {/* Title */}
                     <div className="info__header">
                         <h2 className="info__title">{product.name}</h2>
-                        <span className="info__category">{product.category}</span>
+                        <span className="info__category">{product.categoryId || 'Unknown Category'}</span>
                     </div>
 
                     {/* Price */}
@@ -113,7 +124,7 @@ function ProductDetailModal({
                     {/* Description */}
                     {product.description && (
                         <div className="info__description">
-                            <p>{product.description.description}</p>
+                            <p>{typeof product.description === 'string' ? product.description : (product.description as any).description || ''}</p>
                         </div>
                     )}
 
@@ -121,19 +132,19 @@ function ProductDetailModal({
                     <div className="info__specs">
                         <h3 className="specs__title">Performance Specs</h3>
                         <div className="specs__grid">
-                            {product.description?.descriptionAdvanced && (
+                            {typeof product.description === 'object' && (product.description as any).descriptionAdvanced && (
                                 <>
                                     <div className="spec-item">
                                         <span className="spec-item__label">🏎️ Horsepower</span>
-                                        <span className="spec-item__value">{product.description.descriptionAdvanced.h} л.с.</span>
+                                        <span className="spec-item__value">{(product.description as any).descriptionAdvanced.h} л.с.</span>
                                     </div>
                                     <div className="spec-item">
                                         <span className="spec-item__label">⚖️ Weight</span>
-                                        <span className="spec-item__value">{product.description.descriptionAdvanced.w} kg</span>
+                                        <span className="spec-item__value">{(product.description as any).descriptionAdvanced.w} kg</span>
                                     </div>
                                     <div className="spec-item">
                                         <span className="spec-item__label">⚡ 0-100 km/h</span>
-                                        <span className="spec-item__value">{(product.description.descriptionAdvanced.l / 10).toFixed(1)}s</span>
+                                        <span className="spec-item__value">{((product.description as any).descriptionAdvanced.l / 10).toFixed(1)}s</span>
                                     </div>
                                 </>
                             )}

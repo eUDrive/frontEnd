@@ -58,6 +58,33 @@ export const usersAPI = {
     headers: getAuthHeaders(),
     credentials: 'include'
   }).then(r => r.json()),
+
+  create: (data: any) => fetch(`${API_BASE}/user`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+    body: JSON.stringify(data)
+  }).then(r => r.json()),
+
+  update: (id: number, data: any) => fetch(`${API_BASE}/user/${id}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+    body: JSON.stringify(data)
+  }).then(r => r.json()),
+
+  delete: (id: number) => fetch(`${API_BASE}/user/${id}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+    credentials: 'include'
+  }).then(r => r.json()),
+
+  activate: (id: number, isActive: boolean) => fetch(`${API_BASE}/user/activate/${id}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+    body: JSON.stringify({ id, isActive })
+  }).then(r => r.json()),
 };
 
 // CERTIFICATES

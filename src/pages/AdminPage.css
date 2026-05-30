@@ -1,6 +1,6 @@
 .admin-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ea6666 0%, #a24b4b 100%);
   padding: 40px 20px;
 }
 
@@ -68,43 +68,7 @@
   }
 }
 
-.admin-form {
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  border-left: 4px solid #667eea;
-}
-
-.form-group {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #333;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
+/* Styles are defined in individual tab CSS files */
 
 .btn {
   padding: 10px 20px;
@@ -119,12 +83,12 @@
 }
 
 .btn-primary {
-  background: #667eea;
+  background: #ea6666;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #5568d3;
+  background: #d35555;
   transform: translateY(-2px);
 }
 

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import ProductDetailModal from './ProductDetailModal';
-import type { Car } from '../../data/products';
+import type { Product } from '../../api/index';
 import './ProductCard.css';
 
 interface ProductCardProps {
-    product: Car;
+    product: Product;
 }
 
 function ProductCard({ product }: ProductCardProps) {
@@ -24,12 +24,16 @@ function ProductCard({ product }: ProductCardProps) {
         }
     };
 
-    const mainImage = product.images.length > 0 ? product.images[0].url : '/images/placeholder.png';
+    const mainImage = product.image || product.images?.[0] || '/images/placeholder.png';
 
     return (
         <div className="product-card">
             <div className="product-card__image" onClick={openModal}>
-                <img src={mainImage} alt={product.name} style={{ cursor: 'pointer' }} />
+                <img 
+                    src={typeof mainImage === 'string' ? mainImage : mainImage?.url || '/images/placeholder.png'} 
+                    alt={product.name} 
+                    style={{ cursor: 'pointer' }} 
+                />
             </div>
             
             <div className="product-card__content">
@@ -38,15 +42,15 @@ function ProductCard({ product }: ProductCardProps) {
                 <div className="product-card__specs">
                     <div className="spec">
                         <span className="spec__label">📦 Stock</span>
-                        <span className="spec__value">{product.stock} units</span>
+                        <span className="spec__value">{product.stock || 0} units</span>
                     </div>
                     <div className="spec">
                         <span className="spec__label">🏁 Category</span>
-                        <span className="spec__value">{product.category}</span>
+                        <span className="spec__value">Category {product.categoryId}</span>
                     </div>
                     <div className="spec">
                         <span className="spec__label">📸 Photos</span>
-                        <span className="spec__value">{product.images.length}</span>
+                        <span className="spec__value">{product.images?.length || 0}</span>
                     </div>
                 </div>
                 

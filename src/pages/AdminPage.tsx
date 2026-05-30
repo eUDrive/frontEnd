@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { AdminProductsTab } from '../components/Admin/AdminProductsTab';
 import { AdminUsersTab } from '../components/Admin/AdminUsersTab';
 import { AdminCertificatesTab } from '../components/Admin/AdminCertificatesTab';
+import { AdminCategoriesTab } from '../components/Admin/AdminCategoriesTab';
 import './AdminPage.css';
 
-type TabType = 'products' | 'users' | 'certificates';
+type TabType = 'products' | 'categories' | 'certificates' | 'users';
 
 function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('products');
@@ -22,10 +23,10 @@ function AdminPage() {
             📦 Продукты
           </button>
           <button
-            className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-            onClick={() => setActiveTab('users')}
+            className={`tab-button ${activeTab === 'categories' ? 'active' : ''}`}
+            onClick={() => setActiveTab('categories')}
           >
-            👥 Пользователи
+            🏷️ Категории
           </button>
           <button
             className={`tab-button ${activeTab === 'certificates' ? 'active' : ''}`}
@@ -33,12 +34,19 @@ function AdminPage() {
           >
             🎖️ Сертификаты
           </button>
+          <button
+            className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            👥 Пользователи
+          </button>
         </div>
 
         <div className="admin-content">
           {activeTab === 'products' && <AdminProductsTab />}
-          {activeTab === 'users' && <AdminUsersTab />}
+          {activeTab === 'categories' && <AdminCategoriesTab />}
           {activeTab === 'certificates' && <AdminCertificatesTab />}
+          {activeTab === 'users' && <AdminUsersTab />}
         </div>
       </div>
     </div>

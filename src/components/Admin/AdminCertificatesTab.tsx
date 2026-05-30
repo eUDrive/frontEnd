@@ -48,7 +48,8 @@ export function AdminCertificatesTab() {
     }
 
     try {
-      const newCertificate = {
+      const certificateData = {
+        id: editingId || 0,
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
@@ -57,10 +58,10 @@ export function AdminCertificatesTab() {
       };
 
       if (editingId) {
-        await certificatesAPI.update(editingId, newCertificate);
+        await certificatesAPI.update(certificateData);
         alert('Сертификат обновлён');
       } else {
-        await certificatesAPI.create(newCertificate);
+        await certificatesAPI.create(certificateData);
         alert('Сертификат добавлен');
       }
 
@@ -91,7 +92,7 @@ export function AdminCertificatesTab() {
       description: certificate.description || '',
       price: certificate.price.toString(),
       stock: (certificate.stock || 0).toString(),
-      isActive: certificate.isActive || false,
+      isActive: certificate.isActive !== undefined ? certificate.isActive : true,
     });
     setEditingId(certificate.id);
   };
@@ -189,8 +190,8 @@ export function AdminCertificatesTab() {
                   <td>{cert.name}</td>
                   <td>${cert.price}</td>
                   <td>{cert.stock || 0}</td>
-                  <td>{cert.isActive ? '✅ Активен' : '❌ Неактивен'}</td>
-                  <td>{cert.createdAt ? new Date(cert.createdAt).toLocaleDateString() : '-'}</td>
+                  <td>{cert.isActive === true ? '✅ Активен' : '❌ Неактивен'}</td>
+                  <td>{cert.createdAt ? new Date(cert.createdAt).toLocaleDateString('ru-RU') : '-'}</td>
                   <td>
                     <button className="btn btn-small btn-info" onClick={() => handleEditCertificate(cert)}>
                       ✏️ Изменить

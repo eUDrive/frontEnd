@@ -700,14 +700,14 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #f63b3b 0%, #eb2525 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 12px rgba(235, 37, 37, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 6px 20px rgba(235, 37, 37, 0.4);
 }
 
 .btn-secondary {

@@ -120,7 +120,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authAPI.login({ email, password });
       console.log('Login response:', response); // Отладка
 
-      if (!response.isSuccess) {
+      // Проверяем наличие токена
+      if (!response.token) {
         handleError(response.message || 'Login failed');
         return;
       }
@@ -161,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const response = await authAPI.register({ username, email, password });
 
-      if (!response.isSuccess) {
+      if (!response.token) {
         handleError(response.message || 'Registration failed');
         return;
       }
