@@ -45,7 +45,7 @@ export interface Product {
   categoryId: number;
   image?: string;
   stock?: number;
-  images?: ProductImage[] | string[];
+  images?: { id: number; url: string }[];
   status?: string | number;
   createdAt?: string;
   updatedAt?: string;
@@ -158,7 +158,7 @@ export const productsAPI = {
   },
 
   create: async (product: any) => {
-    const res = await http.post<Product>("/api/product", product);
+    const res = await http.post<{ isSuccess: boolean; message: string; data: Product }>("/api/product", product);
     return res.data;
   },
 
@@ -330,6 +330,29 @@ export const ordersAPI = {
 export const healthAPI = {
   ping: async () => {
     const res = await http.get("/api/health/ping");
+    return res.data;
+  },
+};
+
+// ============================================
+// IMAGES API
+// ============================================
+
+export const imagesAPI = {
+  getByProductId: async (productId: number) => {
+    const res = await http.get<{ id: number; url: string }[]>(`/api/image/${productId}`);
+    return res.data;
+  },
+
+  upload: async (productId: number, file: File) => {
+    const body = new FormData();
+    body.append('productId', productId.toString());
+    body.append('file', file);
+
+    // ⚠️ Do NOT set Content-Type — axios must NOT override multipart boundary
+    const res = await http.post('/api/image/upload', body, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return res.data;
   },
 };

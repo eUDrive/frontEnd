@@ -24,15 +24,17 @@ function ProductCard({ product }: ProductCardProps) {
         }
     };
 
-    const mainImage = product.image || product.images?.[0] || '/images/placeholder.png';
+    const mainImageUrl = product.image
+    || product.images?.[0]?.url
+    || '/images/placeholder.png';
 
     return (
         <div className="product-card">
             <div className="product-card__image" onClick={openModal}>
-                <img 
-                    src={typeof mainImage === 'string' ? mainImage : mainImage?.url || '/images/placeholder.png'} 
-                    alt={product.name} 
-                    style={{ cursor: 'pointer' }} 
+               <img
+                    src={mainImageUrl}
+                    alt={product.name}
+                    style={{ cursor: 'pointer' }}
                 />
             </div>
             

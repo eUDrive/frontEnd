@@ -1,89 +1,106 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-interface ImageData {
-  url: string;
+// Represents one image entry — either a picked File or an existing URL from the server
+export interface ImageEntry {
+  id?: number;
+  file?: File;       // present for newly picked files
+  preview: string;  // object URL (new files) or server URL (existing)
+  isExisting?: boolean; // true when loaded from DB, no upload needed
 }
 
 interface ImageUploaderProps {
-  images: ImageData[];
-  onImagesChange: (images: ImageData[]) => void;
+  images: ImageEntry[];
+  onImagesChange: (images: ImageEntry[]) => void;
 }
 
 export function ImageUploader({ images, onImagesChange }: ImageUploaderProps) {
-  const [previewUrls, setPreviewUrls] = useState<string[]>(
-    images.map(img => img.url)
-  );
+  const inputRef = useRef<HTMLInputElement>(null);
   const [urlInput, setUrlInput] = useState('');
 
+  // ── File picker ──────────────────────────────────────────────────────────────
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
-    if (!files) return;
+    const files = Array.from(e.currentTarget.files || []);
+    if (!files.length) return;
 
-    const MAX_FILE_SIZE = 500 * 1024; // 500KB
+    const newEntries: ImageEntry[] = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file), // only for display; File is the real payload
+    }));
 
-    Array.from(files).forEach((file) => {
-      // Проверка размера
-      if (file.size > MAX_FILE_SIZE) {
-        alert(`❌ Файл "${file.name}" слишком большой! Макс 500KB. Сожми картинку онлайн: tinypng.com`);
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        const newImages = [...images, { url: dataUrl }];
-        const newPreviews = [...previewUrls, dataUrl];
-        
-        setPreviewUrls(newPreviews);
-        onImagesChange(newImages);
-      };
-
-      reader.readAsDataURL(file);
-    });
+    onImagesChange([...images, ...newEntries]);
+    e.currentTarget.value = ''; // reset so the same file can be re-selected
   };
 
+  // ── URL input ─────────────────────────────────────────────────────────────────
   const handleAddUrl = () => {
-    if (!urlInput.trim()) {
+    const trimmed = urlInput.trim();
+    if (!trimmed) {
       alert('Введите URL изображения');
       return;
     }
-
     try {
-      new URL(urlInput); // Проверка валидности URL
-      const newImages = [...images, { url: urlInput }];
-      const newPreviews = [...previewUrls, urlInput];
-      
-      setPreviewUrls(newPreviews);
-      onImagesChange(newImages);
-      setUrlInput('');
+      new URL(trimmed);
     } catch {
       alert('❌ Некорректный URL');
+      return;
     }
+
+    const newEntry: ImageEntry = {
+      preview: trimmed,
+      isExisting: true, // URL-based entries are treated as already on the server
+    };
+
+    onImagesChange([...images, newEntry]);
+    setUrlInput('');
   };
 
-  const removeImage = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    const newPreviews = previewUrls.filter((_, i) => i !== index);
-    setPreviewUrls(newPreviews);
-    onImagesChange(newImages);
+  // ── Remove ────────────────────────────────────────────────────────────────────
+  const handleRemove = (index: number) => {
+    const entry = images[index];
+    // Release object URL memory for file-based previews
+    if (entry.file) URL.revokeObjectURL(entry.preview);
+    onImagesChange(images.filter((_, i) => i !== index));
   };
 
   return (
     <div className="image-uploader">
-      <label>🖼️ Картинки продукта (макс 500KB за файл)</label>
-      
+      <label>🖼️ Картинки продукта</label>
+
+      {/* ── File upload ── */}
       <div style={{ marginBottom: '15px' }}>
         <h4>📤 Загрузить файл</h4>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          style={{
+            padding: '8px 16px',
+            background: '#ea6666',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Выбрать файл(ы)
+        </button>
         <input
+          ref={inputRef}
           type="file"
           multiple
           accept="image/*"
+          style={{ display: 'none' }}
           onChange={handleFileSelect}
-          style={{ marginBottom: '10px', display: 'block' }}
         />
       </div>
 
-      <div style={{ marginBottom: '15px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
+      {/* ── URL input ── */}
+      <div
+        style={{
+          marginBottom: '15px',
+          borderTop: '1px solid #ddd',
+          paddingTop: '15px',
+        }}
+      >
         <h4>🔗 Или добавить по ссылке</h4>
         <div style={{ display: 'flex', gap: '10px' }}>
           <input
@@ -91,7 +108,12 @@ export function ImageUploader({ images, onImagesChange }: ImageUploaderProps) {
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             placeholder="https://example.com/image.jpg"
-            style={{ flex: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+            style={{
+              flex: 1,
+              padding: '8px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+            }}
           />
           <button
             type="button"
@@ -110,17 +132,36 @@ export function ImageUploader({ images, onImagesChange }: ImageUploaderProps) {
         </div>
       </div>
 
-      {previewUrls.length > 0 && (
+      {/* ── Previews ── */}
+      {images.length > 0 && (
         <div>
-          <h4>📸 Предпросмотр ({previewUrls.length})</h4>
+          <h4>📸 Предпросмотр ({images.length})</h4>
           <div className="image-preview-grid">
-            {previewUrls.map((url, index) => (
-              <div key={index} className="image-preview-item">
-                <img src={url} alt={`Product preview ${index}`} style={{ maxHeight: '150px', objectFit: 'cover' }} />
+            {images.map((entry, index) => (
+              <div key={index} className="image-preview-item" style={{ position: 'relative' }}>
+                <img
+                  src={entry.preview}
+                  alt={`preview-${index}`}
+                  style={{ maxHeight: '150px', objectFit: 'cover' }}
+                />
+                {/* Badge so the admin can see which are new vs existing */}
+                <span
+                  style={{
+                    position: 'absolute',
+                    bottom: '5px',
+                    left: '5px',
+                    background: entry.file ? '#28a745' : '#6c757d',
+                    color: 'white',
+                    fontSize: '10px',
+                    padding: '2px 5px',
+                    borderRadius: '3px',
+                  }}
+                >
+                  {entry.file ? 'новый' : 'ссылка'}
+                </span>
                 <button
                   type="button"
-                  onClick={() => removeImage(index)}
-                  className="btn-remove-image"
+                  onClick={() => handleRemove(index)}
                   style={{
                     position: 'absolute',
                     top: '5px',

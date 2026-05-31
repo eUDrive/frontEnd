@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { productsAPI, categoriesAPI, type Product as APIProduct } from '../../api/index';
+import { productsAPI, categoriesAPI, imagesAPI, type Product as APIProduct } from '../../api/index';
 import './AdminProductsTab.css';
-import { ImageUploader } from './ImageUploader';
+import { ImageUploader, type ImageEntry } from './ImageUploader';
 
 interface Category {
   id: number;
@@ -12,21 +12,37 @@ interface Product extends APIProduct {
   status?: string | number;
 }
 
+interface FormData {
+  name: string;
+  price: string;
+  stock: string;
+  categoryId: string;
+  description: string;
+  images: ImageEntry[];
+}
+
+const EMPTY_FORM: FormData = {
+  name: '',
+  price: '',
+  stock: '',
+  categoryId: '1',
+  description: '',
+  images: [],
+};
+
+// ── Upload a single image file to the backend ────────────────────────────────
+async function uploadImageFile(productId: number, file: File): Promise<void> {
+  await imagesAPI.upload(productId, file);
+}
+
 export function AdminProductsTab() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);  // ← ДОБАВЬ
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({
-    name: '', 
-    price: '', 
-    stock: '', 
-    categoryId: '1', 
-    description: '', 
-    images: [] as any[]
-  });
+  const [formData, setFormData] = useState<FormData>(EMPTY_FORM);
 
-  // Загрузить продукты и категории при монтировании
   useEffect(() => {
     loadProducts();
     loadCategories();
@@ -35,8 +51,8 @@ export function AdminProductsTab() {
   const loadProducts = async () => {
     setIsLoading(true);
     try {
-      const products = await productsAPI.getAll();
-      setProducts(products);
+      const data = await productsAPI.getAll();
+      setProducts(data);
     } catch (error) {
       console.error('Ошибка загрузки продуктов:', error);
       alert('Ошибка при загрузке продуктов');
@@ -46,14 +62,23 @@ export function AdminProductsTab() {
 
   const loadCategories = async () => {
     try {
-      const categories = await categoriesAPI.getAll();
-      setCategories(categories);
-      console.log('Категории загружены:', categories);
+      const data = await categoriesAPI.getAll();
+      setCategories(data);
     } catch (error) {
       console.error('Ошибка загрузки категорий:', error);
     }
   };
 
+  const resetForm = () => {
+    // Release object URLs to free browser memory
+    formData.images.forEach((img) => {
+      if (img.file) URL.revokeObjectURL(img.preview);
+    });
+    setFormData(EMPTY_FORM);
+    setEditingId(null);
+  };
+
+  // ── Submit ────────────────────────────────────────────────────────────────────
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.price) {
@@ -61,33 +86,57 @@ export function AdminProductsTab() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      const newProduct = {
+      const payload = {
         name: formData.name,
         price: parseFloat(formData.price),
         categoryId: parseInt(formData.categoryId),
         description: formData.description || '',
       };
 
-      console.log('📤 Отправляю продукт:', newProduct.name);
+      let productId: number;
 
       if (editingId) {
-        await productsAPI.update(editingId, newProduct);
-        alert('✅ Продукт обновлён');
+        await productsAPI.update(editingId, payload);
+        productId = editingId;
       } else {
-        await productsAPI.create(newProduct);
-        alert('✅ Продукт добавлен');
+        // productsAPI.create must return the created product with its id
+        const created = await productsAPI.create(payload);
+        productId = created.data?.id;
+        console.log('Create response:', created); // ← what does backend return?
+        if (!created.isSuccess) {
+            throw new Error(created.message || 'Ошибка создания продукта');
+        }
+
+        productId = created.data.id;
+        console.log('Product id:', productId); // ← is this a real number?
       }
 
-      setFormData({ name: '', price: '', stock: '', categoryId: '1', description: '', images: [] });
-      setEditingId(null);
+      // Upload only newly picked files (entries that have a File object)
+      const pendingFiles = formData.images.filter((img) => img.file instanceof File);
+      console.log('Pending files:', pendingFiles.length, pendingFiles.map(f => f.file!.name)); // ← are files here?
+
+
+      if (pendingFiles.length > 0) {
+        for (const img of pendingFiles) {
+            console.log('Uploading:', img.file!.name, img.file!.size + 'bytes');
+          await uploadImageFile(productId, img.file!);
+        }
+      }
+
+      alert(editingId ? '✅ Продукт обновлён' : '✅ Продукт добавлен');
+      resetForm();
       loadProducts();
     } catch (error) {
       console.error('❌ Ошибка:', error);
       alert('❌ Ошибка: ' + (error instanceof Error ? error.message : 'Unknown'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  // ── Delete ────────────────────────────────────────────────────────────────────
   const handleDeleteProduct = async (id: number) => {
     if (!confirm('Вы уверены?')) return;
     try {
@@ -100,18 +149,27 @@ export function AdminProductsTab() {
     }
   };
 
+  // ── Edit — populate form with existing data ───────────────────────────────────
   const handleEditProduct = (product: Product) => {
-    const desc = typeof product.description === 'string' 
-      ? product.description 
-      : (product.description as any)?.description || '';
-    
+    const desc =
+      typeof product.description === 'string'
+        ? product.description
+        : (product.description as any)?.description || '';
+
+    // Existing server images become ImageEntry with isExisting=true and no File
+    const existingImages: ImageEntry[] = (product.images || []).map((img) => ({
+        id: img.id,          // keep the id in case you need to delete specific images later
+        preview: img.url,    // img.url is always a string from ImageDto
+        isExisting: true,
+    }));
+
     setFormData({
       name: product.name,
       price: product.price.toString(),
       stock: (product.stock || 0).toString(),
       categoryId: product.categoryId.toString(),
       description: desc,
-      images: product.images || [],
+      images: existingImages,
     });
     setEditingId(product.id);
   };
@@ -161,7 +219,7 @@ export function AdminProductsTab() {
             {categories.length === 0 ? (
               <option>Загрузка категорий...</option>
             ) : (
-              categories.map(cat => (
+              categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
@@ -185,14 +243,17 @@ export function AdminProductsTab() {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary">
-          {editingId ? '✏️ Обновить' : '➕ Добавить'} продукт
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          {isSubmitting ? '⏳ Сохранение...' : editingId ? '✏️ Обновить' : '➕ Добавить'} продукт
         </button>
+
         {editingId && (
-          <button type="button" className="btn btn-secondary" onClick={() => {
-            setEditingId(null);
-            setFormData({ name: '', price: '', stock: '', categoryId: '1', description: '', images: [] });
-          }}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={resetForm}
+            disabled={isSubmitting}
+          >
             Отмена
           </button>
         )}
@@ -225,14 +286,20 @@ export function AdminProductsTab() {
                   <td>${product.price}</td>
                   <td>{product.stock}</td>
                   <td>
-                    {categories.find(c => c.id === product.categoryId)?.name || 'Unknown'}
+                    {categories.find((c) => c.id === product.categoryId)?.name || 'Unknown'}
                   </td>
                   <td>{product.status}</td>
                   <td>
-                    <button className="btn btn-small btn-info" onClick={() => handleEditProduct(product)}>
+                    <button
+                      className="btn btn-small btn-info"
+                      onClick={() => handleEditProduct(product)}
+                    >
                       ✏️ Изменить
                     </button>
-                    <button className="btn btn-small btn-danger" onClick={() => handleDeleteProduct(product.id)}>
+                    <button
+                      className="btn btn-small btn-danger"
+                      onClick={() => handleDeleteProduct(product.id)}
+                    >
                       🗑️ Удалить
                     </button>
                   </td>
