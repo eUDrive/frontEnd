@@ -134,39 +134,35 @@ export function AdminCategoriesTab() {
           {categories.length === 0 ? (
             <p>Нет категорий</p>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Название</th>
-                  <th>Описание</th>
-                  <th>Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categories.map((category) => (
-                  <tr key={category.id}>
-                    <td>{category.id}</td>
-                    <td>{category.name}</td>
-                    <td>{category.description || '-'}</td>
-                    <td className="actions">
-                      <button
-                        onClick={() => handleEditCategory(category)}
-                        className="btn-small btn-edit"
-                      >
-                        ✏️ Изменить
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCategory(category.id)}
-                        className="btn-small btn-delete"
-                      >
-                        🗑️ Удалить
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="admin-cards-grid">
+              {categories.map((category) => (
+                <div key={category.id} className="admin-card">
+                  <div className="admin-card__content">
+                    <div className="admin-card__header">
+                      <h4 className="admin-card__title">{category.name}</h4>
+                      <span className="admin-card__id">ID: {category.id}</span>
+                    </div>
+                    <p className="admin-card__description">
+                      {category.description || 'Нет описания'}
+                    </p>
+                  </div>
+                  <div className="admin-card__footer">
+                    <button
+                      onClick={() => handleEditCategory(category)}
+                      className="btn btn-small btn-info"
+                    >
+                      ✏️ Изменить
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCategory(category.id)}
+                      className="btn btn-small btn-danger"
+                    >
+                      🗑️ Удалить
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

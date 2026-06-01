@@ -171,39 +171,59 @@ export function AdminCertificatesTab() {
         ) : certificates.length === 0 ? (
           <p>Сертификатов не найдено</p>
         ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Название</th>
-                <th>Цена</th>
-                <th>Количество</th>
-                <th>Статус</th>
-                <th>Создан</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {certificates.map((cert) => (
-                <tr key={cert.id}>
-                  <td>{cert.id}</td>
-                  <td>{cert.name}</td>
-                  <td>${cert.price}</td>
-                  <td>{cert.stock || 0}</td>
-                  <td>{cert.isActive === true ? '✅ Активен' : '❌ Неактивен'}</td>
-                  <td>{cert.createdAt ? new Date(cert.createdAt).toLocaleDateString('ru-RU') : '-'}</td>
-                  <td>
-                    <button className="btn btn-small btn-info" onClick={() => handleEditCertificate(cert)}>
-                      ✏️ Изменить
-                    </button>
-                    <button className="btn btn-small btn-danger" onClick={() => handleDeleteCertificate(cert.id)}>
-                      🗑️ Удалить
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="admin-cards-grid">
+            {certificates.map((cert) => (
+              <div key={cert.id} className="admin-card">
+                <div className="admin-card__content">
+                  <div className="admin-card__header">
+                    <h4 className="admin-card__title">{cert.name}</h4>
+                    <span className="admin-card__id">ID: {cert.id}</span>
+                  </div>
+                  <div className="admin-card__details">
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Цена:</span>
+                      <span className="admin-card__value">${cert.price}</span>
+                    </p>
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Количество:</span>
+                      <span className="admin-card__value">{cert.stock || 0}</span>
+                    </p>
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Статус:</span>
+                      <span className="admin-card__value">
+                        {cert.isActive === true ? '✅ Активен' : '❌ Неактивен'}
+                      </span>
+                    </p>
+                    {cert.createdAt && (
+                      <p className="admin-card__detail-row">
+                        <span className="admin-card__label">Создан:</span>
+                        <span className="admin-card__value">
+                          {new Date(cert.createdAt).toLocaleDateString('ru-RU')}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  <p className="admin-card__description">
+                    {cert.description || 'Нет описания'}
+                  </p>
+                </div>
+                <div className="admin-card__footer">
+                  <button
+                    className="btn btn-small btn-info"
+                    onClick={() => handleEditCertificate(cert)}
+                  >
+                    ✏️ Изменить
+                  </button>
+                  <button
+                    className="btn btn-small btn-danger"
+                    onClick={() => handleDeleteCertificate(cert.id)}
+                  >
+                    🗑️ Удалить
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

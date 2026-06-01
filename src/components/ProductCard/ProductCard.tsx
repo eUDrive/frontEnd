@@ -29,13 +29,18 @@ function ProductCard({ product }: ProductCardProps) {
     || '/images/placeholder.png';
 
     return (
-        <div className="product-card">
+        <div className="product-card" data-status={product.status}>
             <div className="product-card__image" onClick={openModal}>
                <img
                     src={mainImageUrl}
                     alt={product.name}
                     style={{ cursor: 'pointer' }}
                 />
+               {product.status === 2 && (
+                    <div className="product-card__sold-overlay">
+                        <span className="product-card__sold-badge">ПРОДАН</span>
+                    </div>
+                )}
             </div>
             
             <div className="product-card__content">

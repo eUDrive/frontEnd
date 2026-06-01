@@ -146,7 +146,7 @@
   background-color: #dc2626;
 }
 
-/* ==================== ТАБЛИЦА ==================== */
+/* ==================== ТАБЛИЦА/СПИСОК ==================== */
 .products-list {
   background-color: white;
   padding: 30px;
@@ -156,51 +156,314 @@
 
 .products-list h3 {
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   font-size: 18px;
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 15px;
 }
 
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
+/* ==================== КАРТОЧКИ СЕТКА ==================== */
+.admin-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
   margin-top: 15px;
 }
 
-.admin-table thead {
-  background-color: #f3f4f6;
+.admin-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.admin-table th {
-  padding: 15px;
-  text-align: left;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
-  font-size: 13px;
-  letter-spacing: 0.5px;
-}
-
-.admin-table td {
-  padding: 15px;
+/* ==================== IMAGES GALLERY ==================== */
+.admin-card__images-gallery {
+  width: 100%;
+  background: #f3f4f6;
   border-bottom: 1px solid #e5e7eb;
-  color: #555;
 }
 
-.admin-table tbody tr {
-  transition: background-color 0.2s;
+.admin-card__main-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  position: relative;
 }
 
-.admin-table tbody tr:hover {
+.admin-card__main-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.admin-card__image-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.admin-card__main-image:hover .admin-card__image-delete-btn {
+  opacity: 1;
+}
+
+.admin-card__image-delete-btn:hover {
+  background: rgba(153, 27, 27, 1);
+  transform: scale(1.1);
+}
+
+.admin-card__thumbnail-list {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: #f3f4f6;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.admin-card__thumbnail-wrapper {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.admin-card__thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: block;
+}
+
+.admin-card__thumbnail:hover {
+  border-color: #6366f1;
+  transform: scale(1.05);
+}
+
+.admin-card__thumbnail-delete-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.admin-card__thumbnail-wrapper:hover .admin-card__thumbnail-delete-btn {
+  opacity: 1;
+}
+
+.admin-card__thumbnail-delete-btn:hover {
+  background: rgba(153, 27, 27, 1);
+  transform: scale(1.15);
+}
+
+.admin-card__thumbnail-more {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.admin-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border-color: #6366f1;
+}
+
+.admin-card__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.admin-card__title {
+  margin: 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 700;
+  word-break: break-word;
+  max-width: 250px;
+}
+
+.admin-card__id {
+  display: inline-block;
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-card__detail-row {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.admin-card__label {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.admin-card__value {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.admin-card__status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-card__status-badge[data-status="0"] {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.admin-card__status-badge[data-status="1"] {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-card__status-badge[data-status="2"] {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.admin-card__status-select {
+  padding: 6px 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: white;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 16px;
+  padding-right: 28px;
+}
+
+.admin-card__status-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.admin-card__status-select:hover {
+  border-color: #6366f1;
+}
+
+.admin-card__description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+  flex-grow: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.admin-card__footer {
+  display: flex;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
   background-color: #f9fafb;
+  flex-wrap: wrap;
 }
 
-.admin-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* ==================== ПУСТАЯ ТАБЛИЦА ==================== */
+/* ==================== ПУСТОЙ СПИСОК ==================== */
 .products-list p {
   text-align: center;
   color: #9ca3af;
@@ -220,16 +483,11 @@
 
   .products-list {
     padding: 20px;
-    overflow-x: auto;
   }
 
-  .admin-table {
-    font-size: 12px;
-  }
-
-  .admin-table th,
-  .admin-table td {
-    padding: 10px;
+  .admin-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .btn {

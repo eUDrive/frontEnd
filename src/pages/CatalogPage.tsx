@@ -33,11 +33,13 @@ function CatalogPage() {
     }, []);
 
     // Фильтрация по категории и поиску
+    // Показываем только активные (0) и проданные (2) товары
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'Все' || product.categoryId.toString() === selectedCategory;
+        const matchesStatus = product.status === 0 || product.status === 2; // Only Active or Sold
         
-        return matchesSearch && matchesCategory;
+        return matchesSearch && matchesCategory && matchesStatus;
     });
 
     if (loading) {

@@ -174,6 +174,31 @@ export function AdminProductsTab() {
     setEditingId(product.id);
   };
 
+  // ── Change product status ────────────────────────────────────────────────────
+  const handleChangeStatus = async (productId: number, newStatus: number) => {
+    try {
+      await productsAPI.update(productId, { status: newStatus });
+      alert('✅ Статус продукта обновлён');
+      loadProducts();
+    } catch (error) {
+      console.error('Ошибка обновления статуса:', error);
+      alert('❌ Ошибка при обновлении статуса');
+    }
+  };
+
+  // ── Delete product image ──────────────────────────────────────────────────────
+  const handleDeleteImage = async (productId: number, imageId: number) => {
+    if (!confirm('Вы уверены в удалении этого изображения?')) return;
+    try {
+      await imagesAPI.delete(productId, imageId);
+      alert('✅ Изображение удалено');
+      loadProducts();
+    } catch (error) {
+      console.error('Ошибка удаления изображения:', error);
+      alert('❌ Ошибка при удалении изображения');
+    }
+  };
+
   return (
     <div className="admin-tab">
       <h2>📦 Управление Продуктами</h2>
@@ -266,47 +291,120 @@ export function AdminProductsTab() {
         ) : products.length === 0 ? (
           <p>Продуктов не найдено</p>
         ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Название</th>
-                <th>Цена</th>
-                <th>Количество</th>
-                <th>Категория</th>
-                <th>Статус</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td>{product.id}</td>
-                  <td>{product.name}</td>
-                  <td>${product.price}</td>
-                  <td>{product.stock}</td>
-                  <td>
-                    {categories.find((c) => c.id === product.categoryId)?.name || 'Unknown'}
-                  </td>
-                  <td>{product.status}</td>
-                  <td>
-                    <button
-                      className="btn btn-small btn-info"
-                      onClick={() => handleEditProduct(product)}
-                    >
-                      ✏️ Изменить
-                    </button>
-                    <button
-                      className="btn btn-small btn-danger"
-                      onClick={() => handleDeleteProduct(product.id)}
-                    >
-                      🗑️ Удалить
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="admin-cards-grid">
+            {products.map((product) => (
+              <div key={product.id} className="admin-card">
+                {product.images && product.images.length > 0 && (
+                  <div className="admin-card__images-gallery">
+                    <div className="admin-card__main-image">
+                      <img
+                        src={product.images[0].url}
+                        alt={product.name}
+                      />
+                      {product.images[0].id && (
+                        <button
+                          className="admin-card__image-delete-btn"
+                          onClick={() => handleDeleteImage(product.id, product.images![0].id!)}
+                          title="Удалить изображение"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    {product.images.length > 1 && (
+                      <div className="admin-card__thumbnail-list">
+                        {product.images.slice(0, 3).map((img, idx) => (
+                          <div
+                            key={idx}
+                            className="admin-card__thumbnail-wrapper"
+                          >
+                            <img
+                              src={img.url}
+                              alt={`${product.name} ${idx + 1}`}
+                              className="admin-card__thumbnail"
+                            />
+                            {img.id && (
+                              <button
+                                className="admin-card__thumbnail-delete-btn"
+                                onClick={() => handleDeleteImage(product.id, img.id!)}
+                                title="Удалить изображение"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        {product.images.length > 3 && (
+                          <div className="admin-card__thumbnail-more">
+                            +{product.images.length - 3}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="admin-card__content">
+                  <div className="admin-card__header">
+                    <h4 className="admin-card__title">{product.name}</h4>
+                    <span className="admin-card__id">ID: {product.id}</span>
+                  </div>
+                  <div className="admin-card__details">
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Цена:</span>
+                      <span className="admin-card__value">${product.price}</span>
+                    </p>
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Количество:</span>
+                      <span className="admin-card__value">{product.stock}</span>
+                    </p>
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Категория:</span>
+                      <span className="admin-card__value">
+                        {categories.find((c) => c.id === product.categoryId)?.name || 'Unknown'}
+                      </span>
+                    </p>
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Статус:</span>
+                      <select
+                        className="admin-card__status-select"
+                        value={product.status || 0}
+                        onChange={(e) => handleChangeStatus(product.id, parseInt(e.target.value))}
+                      >
+                        <option value={0}>✅ Активен</option>
+                        <option value={1}>⚠️ Неактивен</option>
+                        <option value={2}>🔒 Продан</option>
+                      </select>
+                    </p>
+                    {product.images && product.images.length > 0 && (
+                      <p className="admin-card__detail-row">
+                        <span className="admin-card__label">Фото:</span>
+                        <span className="admin-card__value">{product.images.length}</span>
+                      </p>
+                    )}
+                  </div>
+                  <p className="admin-card__description">
+                    {typeof product.description === 'string'
+                      ? product.description
+                      : (product.description as any)?.description || 'Нет описания'}
+                  </p>
+                </div>
+                <div className="admin-card__footer">
+                  <button
+                    className="btn btn-small btn-info"
+                    onClick={() => handleEditProduct(product)}
+                  >
+                    ✏️ Изменить
+                  </button>
+                  <button
+                    className="btn btn-small btn-danger"
+                    onClick={() => handleDeleteProduct(product.id)}
+                  >
+                    🗑️ Удалить
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

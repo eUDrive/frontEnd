@@ -340,7 +340,7 @@ export const healthAPI = {
 
 export const imagesAPI = {
   getByProductId: async (productId: number) => {
-    const res = await http.get<{ id: number; url: string }[]>(`/api/image/${productId}`);
+    const res = await http.get<{ id: number; url: string }[]>(`/api/image/product/${productId}/all`);
     return res.data;
   },
 
@@ -350,9 +350,13 @@ export const imagesAPI = {
     body.append('file', file);
 
     // ⚠️ Do NOT set Content-Type — axios must NOT override multipart boundary
-    const res = await http.post('/api/image/upload', body, {
+    const res = await http.post('/api/image/product/upload', body, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return res.data;
+  },
+
+  delete: async (productId: number, imageId: number) => {
+    await http.delete(`/api/image/product/${productId}/${imageId}`);
   },
 };

@@ -212,44 +212,69 @@ export function AdminUsersTab() {
         ) : filteredUsers.length === 0 ? (
           <p>Пользователей не найдено</p>
         ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Имя пользователя</th>
-                <th>Email</th>
-                <th>Статус</th>
-                <th>Создан</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.username}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    <button
-                      className={`btn btn-small ${user.isActive ? 'btn-success' : 'btn-warning'}`}
-                      onClick={() => handleToggleActive(user.id, user.isActive !== undefined ? user.isActive : true)}
-                    >
-                      {user.isActive ? '✅ Активен' : '⚠️ Неактивен'}
-                    </button>
-                  </td>
-                  <td>{user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : '-'}</td>
-                  <td>
-                    <button className="btn btn-small btn-info" onClick={() => handleEditUser(user)}>
-                      ✏️ Изменить
-                    </button>
-                    <button className="btn btn-small btn-danger" onClick={() => handleDeleteUser(user.id)}>
-                      🗑️ Удалить
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="admin-cards-grid">
+            {filteredUsers.map((user) => (
+              <div key={user.id} className="admin-card">
+                <div className="admin-card__content">
+                  <div className="admin-card__header">
+                    <h4 className="admin-card__title">{user.username}</h4>
+                    <span className="admin-card__id">ID: {user.id}</span>
+                  </div>
+                  <div className="admin-card__details">
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Email:</span>
+                      <span className="admin-card__value" title={user.email}>
+                        {user.email.length > 20
+                          ? user.email.substring(0, 20) + '...'
+                          : user.email}
+                      </span>
+                    </p>
+                    <p className="admin-card__detail-row">
+                      <span className="admin-card__label">Статус:</span>
+                      <span className="admin-card__value">
+                        {user.isActive ? '✅ Активен' : '⚠️ Неактивен'}
+                      </span>
+                    </p>
+                    {user.createdAt && (
+                      <p className="admin-card__detail-row">
+                        <span className="admin-card__label">Создан:</span>
+                        <span className="admin-card__value">
+                          {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="admin-card__footer">
+                  <button
+                    className={`btn btn-small ${
+                      user.isActive ? 'btn-success' : 'btn-warning'
+                    }`}
+                    onClick={() =>
+                      handleToggleActive(
+                        user.id,
+                        user.isActive !== undefined ? user.isActive : true
+                      )
+                    }
+                  >
+                    {user.isActive ? '✅ Активен' : '⚠️ Неактивен'}
+                  </button>
+                  <button
+                    className="btn btn-small btn-info"
+                    onClick={() => handleEditUser(user)}
+                  >
+                    ✏️ Изменить
+                  </button>
+                  <button
+                    className="btn btn-small btn-danger"
+                    onClick={() => handleDeleteUser(user.id)}
+                  >
+                    🗑️ Удалить
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
