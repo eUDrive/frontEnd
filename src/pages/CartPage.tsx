@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import type { CartItem } from '../context/CartContext';
 import './CartPage.css';
+import { ordersAPI } from '../api/index';
 
 interface PaymentFormData {
     email: string;
@@ -107,30 +108,63 @@ function CartPage() {
         setIsProcessing(true);
 
         try {
-            // Simulate payment processing
+            // Имитируем обработку платежа
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
-            // TODO: Send payment to backend
-            console.log('Payment processed:', {
-                user: isAuthenticated ? user : { email: paymentData.email },
-                items: cartItems,
-                total: totalPrice,
-                payment: paymentData,
-            });
+            // Если пользователь авторизован - добавляем товары в корзину
+            if (isAuthenticated && user) {
+                // 1️⃣ Сначала добавляем каждый товар в корзину на бэкенде
+                for (const cartItem of cartItems) {
+                    try {
+                        await ordersAPI.addToCart({
+                            userId: user.id,
+                            item: {
+                                type: 0, // 0 для продукта, 1 для сертификата
+                                itemId: cartItem.item.id,
+                                quantity: cartItem.quantity,
+                                priceAtPurchase: getItemPrice(cartItem.item),
+                                createdAt: new Date().toISOString(),
+                            },
+                            currentPrice: getItemPrice(cartItem.item),
+                        });
+                    } catch (error) {
+                        console.error('Ошибка добавления товара в корзину:', error);
+                        setValidationErrors({ payment: 'Ошибка при добавлении товаров' });
+                        setIsProcessing(false);
+                        return;
+                    }
+                }
 
-            setOrderPlaced(true);
-            
-            // Show success message for 3 seconds then redirect
-            setTimeout(() => {
-                setOrderPlaced(false);
-                setPaymentData({
-                    email: '',
-                    cardholderName: isAuthenticated ? user?.username || '' : '',
-                    cardNumber: '',
-                    expiryDate: '',
-                    cvv: '',
-                });
-            }, 3000);
+                // 2️⃣ Потом оформляем заказ (checkout)
+                try {
+                    const result = await ordersAPI.checkout(user.id);
+                    console.log('Checkout result:', result);
+                } catch (error: any) {
+                    const errorMessage = error.response?.data?.message || error.message || 'Ошибка при оформлении заказа';
+                    setValidationErrors({ payment: errorMessage });
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 3️⃣ Очищаем корзину из localStorage (если используешь)
+                // clearCart(); // если у тебя есть такая функция в CartContext
+
+                setOrderPlaced(true);
+                
+                // Show success message for 3 seconds then redirect
+                setTimeout(() => {
+                    setOrderPlaced(false);
+                    setPaymentData({
+                        email: '',
+                        cardholderName: isAuthenticated ? user?.username || '' : '',
+                        cardNumber: '',
+                        expiryDate: '',
+                        cvv: '',
+                    });
+                    // Перезагружаем страницу чтобы очистить корзину и показать заказ в истории
+                    window.location.href = '/cabinet?tab=orders';
+                }, 3000);
+            }
         } catch (error) {
             console.error('Payment error:', error);
             setValidationErrors({ payment: 'Ошибка при обработке платежа. Пожалуйста, попробуйте снова.' });

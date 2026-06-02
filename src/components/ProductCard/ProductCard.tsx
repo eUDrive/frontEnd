@@ -6,9 +6,10 @@ import './ProductCard.css';
 
 interface ProductCardProps {
     product: Product;
+    categoryName?: string;  // ← добавляем
 }
 
-function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product, categoryName }: ProductCardProps) {  // ← добавляем categoryName
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { addToCart, removeFromCart, isInCart } = useCart();
     const isBooked = isInCart(product.id);
@@ -53,7 +54,8 @@ function ProductCard({ product }: ProductCardProps) {
                     </div>
                     <div className="spec">
                         <span className="spec__label">🏁 Category</span>
-                        <span className="spec__value">Category {product.categoryId}</span>
+                        {/* ← ВМЕСТО Category {product.categoryId} */}
+                        <span className="spec__value">{categoryName || `Category ${product.categoryId}`}</span>
                     </div>
                     <div className="spec">
                         <span className="spec__label">📸 Photos</span>
