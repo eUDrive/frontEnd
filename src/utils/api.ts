@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://localhost:7206/api';
+const API_BASE_URL = 'http://localhost:7206/api';
 
 export interface LoginRequest {
   email: string;
