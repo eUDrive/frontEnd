@@ -2,11 +2,59 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './PersonalCabinetPage.css';
+import { ordersAPI, productsAPI } from '../api/index';
 
 export const PersonalCabinetPage: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'settings' | 'help'>('profile');
+  const [orders, setOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (activeTab === 'orders') {
+      setOrdersLoading(true);
+      const loadOrders = async () => {
+        try {
+          const userOrders = await ordersAPI.getHistory(user.id);
+          
+          // Загружаем информацию о товарах для каждого заказа
+          const ordersWithDetails = await Promise.all(
+            userOrders.map(async (order: any) => {
+              const itemsWithDetails = await Promise.all(
+                order.orderItems?.map(async (item: any) => {
+                  try {
+                    // Получаем информацию о товаре
+                    const product = await productsAPI.getById(item.itemId);
+                    return {
+                      ...item,
+                      product: product,
+                    };
+                  } catch (error) {
+                    console.error('Ошибка загрузки товара:', error);
+                    return item;
+                  }
+                }) || []
+              );
+              
+              return {
+                ...order,
+                orderItems: itemsWithDetails,
+              };
+            })
+          );
+          
+          setOrders(ordersWithDetails);
+        } catch (error) {
+          console.error('Ошибка загрузки заказов:', error);
+          setOrders([]);
+        } finally {
+          setOrdersLoading(false);
+        }
+      };
+      loadOrders();
+    }
+  }, [activeTab]);
 
   if (!user) {
     return (
@@ -113,16 +161,67 @@ export const PersonalCabinetPage: React.FC = () => {
 
           {/* Orders Tab */}
           {activeTab === 'orders' && (
-            <div className="cabinet-section">
-              <h2>История заказов</h2>
-              <div className="empty-state">
-                <div className="empty-icon">📦</div>
-                <p>У вас нет заказов</p>
-                <button className="btn btn-primary" onClick={() => navigate('/catalog')}>
-                  Перейти в каталог
-                </button>
+              <div className="cabinet-section">
+                  <h2>История заказов</h2>
+                  {ordersLoading ? (
+                      <p>Загрузка заказов...</p>
+                  ) : orders.length === 0 ? (
+                      <div className="empty-state">
+                          <div className="empty-icon">📦</div>
+                          <p>У вас нет заказов</p>
+                          <button className="btn btn-primary" onClick={() => navigate('/catalog')}>
+                              Перейти в каталог
+                          </button>
+                      </div>
+                  ) : (
+                      <div className="orders-list">
+                          {orders.map((order: any) => (
+                              <div key={order.id} className="order-card">
+                                  <div className="order-header">
+                                      <div>
+                                          <h4>Заказ #{order.id}</h4>
+                                          <p className="order-date">
+                                              {new Date(order.createdAt).toLocaleDateString('ru-RU', {
+                                                  year: 'numeric',
+                                                  month: 'long',
+                                                  day: 'numeric',
+                                                  hour: '2-digit',
+                                                  minute: '2-digit'
+                                              })}
+                                          </p>
+                                      </div>
+                                      <div className="order-total">
+                                          <span className="total-amount">{order.totalPrice.toLocaleString('ru-RU')} $</span>
+                                          <span className="order-status">✅ Завершён</span>
+                                      </div>
+                                  </div>
+                                  
+                                  <div className="order-items-grid">
+                                      {order.orderItems?.map((item: any) => (
+                                          <div key={item.id} className="order-item">
+                                              <div className="order-item-image">
+                                                  {item.product?.images?.[0]?.url ? (
+                                                      <img 
+                                                          src={item.product.images[0].url} 
+                                                          alt={item.product?.name || 'Товар'}
+                                                      />
+                                                  ) : (
+                                                      <div className="no-image">📦</div>
+                                                  )}
+                                              </div>
+                                              <div className="order-item-info">
+                                                  <h5>{item.product?.name || `Товар #${item.itemId}`}</h5>
+                                                  <p className="item-quantity">Кол-во: {item.quantity} шт.</p>
+                                                  <p className="item-price">{(item.priceAtPurchase * item.quantity).toLocaleString('ru-RU')} $</p>
+                                              </div>
+                                          </div>
+                                      ))}
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  )}
               </div>
-            </div>
           )}
 
           {/* Settings Tab */}

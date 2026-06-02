@@ -91,6 +91,7 @@ export function AdminProductsTab() {
       const payload = {
         name: formData.name,
         price: parseFloat(formData.price),
+        stock: parseInt(formData.stock) || 0,  // ← ДОБАВЛЯЕМ stock
         categoryId: parseInt(formData.categoryId),
         description: formData.description || '',
       };

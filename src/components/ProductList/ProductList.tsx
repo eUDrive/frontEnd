@@ -1,12 +1,34 @@
+import { useState, useEffect } from 'react';
 import ProductCard from '../ProductCard/ProductCard';
 import type { Product } from '../../api';
 import './ProductList.css';
+import { categoriesAPI } from '../../api';
 
 interface ProductListProps {
     cars: Product[];
 }
 
 function ProductList({ cars }: ProductListProps) {
+    const [categories, setCategories] = useState<any[]>([]);
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const cats = await categoriesAPI.getAll();
+                setCategories(cats);
+            } catch (error) {
+                console.error('Ошибка загрузки категорий:', error);
+            }
+        };
+
+        loadCategories();
+    }, []);
+
+    const getCategoryName = (categoryId: number): string => {
+        const category = categories.find(c => c.id === categoryId);
+        return category?.name || `Category ${categoryId}`;
+    };
+
     if (cars.length === 0) {
         return (
             <div className="product-list-empty">
@@ -22,6 +44,7 @@ function ProductList({ cars }: ProductListProps) {
                 <ProductCard
                     key={car.id}
                     product={car}
+                    categoryName={getCategoryName(car.categoryId)}
                 />
             ))}
         </div>
