@@ -57,29 +57,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        // Если в localStorage ничего нет, проверим на бэкенде
-        // (может остаться cookie сессия)
-        const response = await fetch('/api/auth/check', {
-          method: 'GET',
-        }).then(r => r.json());
-
-        if (response.isSuccess && response.data?.user) {
-          const user = response.data.user;
-          setAuthState({
-            user,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-            isSuccess: true,
-          });
-          localStorage.setItem('user', JSON.stringify(user));
-          localStorage.setItem('isAuthenticated', 'true');
-        } else {
-          setAuthState((prev) => ({
-            ...prev,
-            isLoading: false,
-          }));
-        }
+        // Если в localStorage ничего нет, просто завершим загрузку
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+        }));
       } catch (err) {
         console.error('Session check error:', err);
         setAuthState((prev) => ({
