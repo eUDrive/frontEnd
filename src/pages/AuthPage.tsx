@@ -24,13 +24,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupErrors, setSignupErrors] = useState<Record<string, string>>({});
 
-  // Clear error when switching tabs
   useEffect(() => {
-    if (error) clearError();
-  }, [isLogin, clearError, error]);
+    clearError();
+  }, [isLogin, clearError]);
 
   useEffect(() => {
     if (!isOpen) {
+      clearError();
       setLoginEmail('');
       setLoginPassword('');
       setSignupName('');
@@ -40,7 +40,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       setLoginErrors({});
       setSignupErrors({});
     }
-  }, [isOpen]);
+  }, [isOpen, clearError]);
 
   /**
    * Handle login form submission
@@ -67,8 +67,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     setLoginErrors({});
     try {
-      await login(loginEmail, loginPassword);
-      onClose();
+      const isLoggedIn = await login(loginEmail, loginPassword);
+      if (isLoggedIn) {
+        onClose();
+      }
     } catch (err) {
       // Error is handled in context
     }
@@ -108,8 +110,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     setSignupErrors({});
     try {
-      await signup(signupName, signupEmail, signupPassword);
-      onClose();
+      const isSignedUp = await signup(signupName, signupEmail, signupPassword);
+      if (isSignedUp) {
+        onClose();
+      }
     } catch (err) {
       // Error is handled in context
     }

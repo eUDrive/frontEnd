@@ -19,8 +19,8 @@ export interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
-  signup: (username: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (username: string, email: string, password: string) => Promise<boolean>;
   oauthLogin: (provider: string, token: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
@@ -91,6 +91,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   }, []);
 
+  const getAuthMessage = (response: Awaited<ReturnType<typeof authAPI.login>>, fallback: string) =>
+    response.message || response.Message || fallback;
+
+  const getAuthData = (response: Awaited<ReturnType<typeof authAPI.login>>) =>
+    response.data || response.Data;
+
+  const getAuthUser = (
+    response: Awaited<ReturnType<typeof authAPI.login>>,
+    fallbackUsername: string,
+    fallbackEmail: string
+  ) => {
+    const data = getAuthData(response);
+    const role = data?.role || data?.Role;
+
+    return {
+      id: data?.id || data?.Id || 0,
+      username: data?.username || data?.Username || fallbackUsername,
+      email: data?.email || data?.Email || fallbackEmail,
+      role: role === 1 || role === '1' || role === 'Admin' ? 'Admin' : 'User',
+    };
+  };
+
+  const isSuccessfulAuth = (response: Awaited<ReturnType<typeof authAPI.login>>) =>
+    response.isSuccess ?? response.IsSuccess ?? Boolean(response.token || response.Token);
+
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof error.response === 'object' &&
+      error.response !== null &&
+      'data' in error.response
+    ) {
+      const data = error.response.data as { message?: string; Message?: string };
+      return data.message || data.Message || fallback;
+    }
+
+    return error instanceof Error ? error.message : fallback;
+  };
+
   // ЛОГИН
   const login = useCallback(async (email: string, password: string) => {
     try {
@@ -104,16 +145,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Login response:', response); // Отладка
 
       // Проверяем наличие токена
-      if (!response.token) {
-        handleError(response.message || 'Login failed');
-        return;
+      if (!isSuccessfulAuth(response)) {
+        handleError(getAuthMessage(response, 'Неверный e-mail или пароль'));
+        return false;
       }
 
+      if (!response.token && !response.Token) {
+        handleError(getAuthMessage(response, 'Не удалось войти в аккаунт'));
+        return false;
+      }
+
+      const authUser = getAuthUser(response, email.split('@')[0], email);
       const user: User = {
-        id: response.data?.id || 0,
-        username: response.data?.username || email.split('@')[0],
-        email: response.data?.email || email,
-        role: response.data?.role === 1 ? 'Admin' : 'User',
+        ...authUser,
         provider: 'email',
       };
 
@@ -128,9 +172,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 🔴 Сохранить в localStorage
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('isAuthenticated', 'true');
+      return true;
     } catch (err) {
       console.error('Login error:', err); // Отладка
-      handleError(err instanceof Error ? err.message : 'Login failed');
+      handleError(getErrorMessage(err, 'Неверный e-mail или пароль'));
+      return false;
     }
   }, []);
 
@@ -145,16 +191,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const response = await authAPI.register({ username, email, password });
 
-      if (!response.token) {
-        handleError(response.message || 'Registration failed');
-        return;
+      if (!isSuccessfulAuth(response)) {
+        handleError(getAuthMessage(response, 'Не удалось зарегистрироваться'));
+        return false;
       }
 
+      if (!response.token && !response.Token) {
+        handleError(getAuthMessage(response, 'Не удалось войти после регистрации'));
+        return false;
+      }
+
+      const authUser = getAuthUser(response, username, email);
       const user: User = {
-        id: response.data?.id || 0,
-        username: response.data?.username || username,
-        email: response.data?.email || email,
-        role: response.data?.role === 1 ? 'Admin' : 'User',
+        ...authUser,
         provider: 'email',
       };
 
@@ -168,8 +217,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('isAuthenticated', 'true');
+      return true;
     } catch (err) {
-      handleError(err instanceof Error ? err.message : 'Registration failed');
+      handleError(getErrorMessage(err, 'Не удалось зарегистрироваться'));
+      return false;
     }
   }, []);
 

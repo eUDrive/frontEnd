@@ -102,14 +102,27 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  token: string;
+  token?: string;
+  Token?: string;
   isSuccess?: boolean;
+  IsSuccess?: boolean;
   message?: string;
+  Message?: string;
   data?: {
     id: number;
     username: string;
     email: string;
     role?: string | number;
+  };
+  Data?: {
+    id?: number;
+    Id?: number;
+    username?: string;
+    Username?: string;
+    email?: string;
+    Email?: string;
+    role?: string | number;
+    Role?: string | number;
   };
 }
 
@@ -120,8 +133,9 @@ export interface AuthResponse {
 export const authAPI = {
   login: async (credentials: LoginRequest) => {
     const res = await http.post<AuthResponse>("/api/auth/login", credentials);
-    if (res.data.token) {
-      localStorage.setItem("token", res.data.token);
+    const token = res.data.token || res.data.Token;
+    if (token) {
+      localStorage.setItem("token", token);
     }
     return res.data;
   },
@@ -135,8 +149,9 @@ export const authAPI = {
 
   register: async (userData: RegisterRequest) => {
     const res = await http.post<AuthResponse>("/api/auth/register", userData);
-    if (res.data.token) {
-      localStorage.setItem("token", res.data.token);
+    const token = res.data.token || res.data.Token;
+    if (token) {
+      localStorage.setItem("token", token);
     }
     return res.data;
   },
