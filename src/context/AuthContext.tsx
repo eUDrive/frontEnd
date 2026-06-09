@@ -24,6 +24,7 @@ interface AuthContextType extends AuthState {
   oauthLogin: (provider: string, token: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -223,6 +224,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('isAuthenticated');
   }, []);
 
+  const updateUser = useCallback((user: User) => {
+    setAuthState((prev) => ({
+      ...prev,
+      user,
+      isAuthenticated: true,
+      error: null,
+    }));
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('isAuthenticated', 'true');
+  }, []);
+
   const value: AuthContextType = {
     ...authState,
     login,
@@ -230,6 +242,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     oauthLogin,
     logout,
     clearError,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -198,6 +198,64 @@
   font-weight: 500;
 }
 
+.profile-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d6d6d6;
+  border-radius: 8px;
+  background-color: white;
+  color: #333;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-field input:focus {
+  outline: none;
+  border-color: #FF0000;
+  box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.12);
+}
+
+.profile-field input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-form .profile-field {
+  margin-bottom: 0;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.profile-message {
+  margin: 0 0 16px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profile-message--success {
+  background-color: #e8f5e9;
+  color: #059669;
+}
+
+.profile-message--error {
+  background-color: #fff5f5;
+  color: #CC0000;
+}
+
 .user-id {
   font-family: 'Courier New', monospace;
   font-size: 14px;

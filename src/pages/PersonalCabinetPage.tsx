@@ -2,17 +2,34 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './PersonalCabinetPage.css';
-import { ordersAPI, productsAPI } from '../api/index';
+import { ordersAPI, productsAPI, usersAPI } from '../api/index';
 
 export const PersonalCabinetPage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'settings' | 'help'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    username: user?.username || '',
+    email: user?.email || '',
+  });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState('');
+  const [profileError, setProfileError] = useState('');
 
   React.useEffect(() => {
-    if (activeTab === 'orders') {
+    if (user && !isEditingProfile) {
+      setProfileForm({
+        username: user.username,
+        email: user.email,
+      });
+    }
+  }, [user, isEditingProfile]);
+
+  React.useEffect(() => {
+    if (activeTab === 'orders' && user) {
       setOrdersLoading(true);
       const loadOrders = async () => {
         try {
@@ -54,7 +71,7 @@ export const PersonalCabinetPage: React.FC = () => {
       };
       loadOrders();
     }
-  }, [activeTab]);
+  }, [activeTab, user]);
 
   if (!user) {
     return (
@@ -73,6 +90,63 @@ export const PersonalCabinetPage: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleEditProfile = () => {
+    setProfileMessage('');
+    setProfileError('');
+    setProfileForm({
+      username: user.username,
+      email: user.email,
+    });
+    setIsEditingProfile(true);
+  };
+
+  const handleCancelEditProfile = () => {
+    setProfileForm({
+      username: user.username,
+      email: user.email,
+    });
+    setIsEditingProfile(false);
+    setProfileError('');
+    setProfileMessage('');
+  };
+
+  const handleSaveProfile = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const username = profileForm.username.trim();
+    const email = profileForm.email.trim();
+
+    if (!username || !email) {
+      setProfileError('Заполните имя и e-mail.');
+      return;
+    }
+
+    setProfileSaving(true);
+    setProfileError('');
+    setProfileMessage('');
+
+    try {
+      const updatedUser = await usersAPI.update(user.id, {
+        username,
+        email,
+      });
+
+      updateUser({
+        ...user,
+        ...updatedUser,
+        username: updatedUser.username || username,
+        email: updatedUser.email || email,
+      });
+      setIsEditingProfile(false);
+      setProfileMessage('Профиль обновлён.');
+    } catch (error) {
+      console.error('Ошибка обновления профиля:', error);
+      setProfileError('Не удалось обновить профиль. Попробуйте ещё раз.');
+    } finally {
+      setProfileSaving(false);
+    }
   };
 
   return (
@@ -117,20 +191,6 @@ export const PersonalCabinetPage: React.FC = () => {
             <span className="tab-icon">📦</span>
             Заказы
           </button>
-          <button
-            className={`cabinet-tab ${activeTab === 'settings' ? 'cabinet-tab--active' : ''}`}
-            onClick={() => setActiveTab('settings')}
-          >
-            <span className="tab-icon">⚙️</span>
-            Параметры
-          </button>
-          <button
-            className={`cabinet-tab ${activeTab === 'help' ? 'cabinet-tab--active' : ''}`}
-            onClick={() => setActiveTab('help')}
-          >
-            <span className="tab-icon">❓</span>
-            Помощь
-          </button>
         </div>
 
         {/* Content */}
@@ -139,23 +199,74 @@ export const PersonalCabinetPage: React.FC = () => {
           {activeTab === 'profile' && (
             <div className="cabinet-section">
               <h2>Информация профиля</h2>
-              <div className="profile-card">
-                <div className="profile-field">
-                  <label>Полное имя</label>
-                  <p>{user.username}</p>
-                </div>
-                <div className="profile-field">
-                  <label>E-mail адрес</label>
-                  <p>{user.email}</p>
-                </div>
-                <div className="profile-field">
-                  <label>ID пользователя</label>
-                  <p className="user-id">{user.id}</p>
-                </div>
-              </div>
-              <button className="btn btn-secondary btn-edit">
-                Редактировать профиль
-              </button>
+              {profileMessage && <p className="profile-message profile-message--success">{profileMessage}</p>}
+              {profileError && <p className="profile-message profile-message--error">{profileError}</p>}
+
+              {isEditingProfile ? (
+                <form className="profile-card profile-form" onSubmit={handleSaveProfile}>
+                  <div className="profile-field">
+                    <label htmlFor="profile-username">Полное имя</label>
+                    <input
+                      id="profile-username"
+                      type="text"
+                      value={profileForm.username}
+                      onChange={(event) =>
+                        setProfileForm((prev) => ({ ...prev, username: event.target.value }))
+                      }
+                      disabled={profileSaving}
+                    />
+                  </div>
+                  <div className="profile-field">
+                    <label htmlFor="profile-email">E-mail адрес</label>
+                    <input
+                      id="profile-email"
+                      type="email"
+                      value={profileForm.email}
+                      onChange={(event) =>
+                        setProfileForm((prev) => ({ ...prev, email: event.target.value }))
+                      }
+                      disabled={profileSaving}
+                    />
+                  </div>
+                  <div className="profile-field">
+                    <label>ID пользователя</label>
+                    <p className="user-id">{user.id}</p>
+                  </div>
+                  <div className="profile-actions">
+                    <button className="btn btn-primary" type="submit" disabled={profileSaving}>
+                      {profileSaving ? 'Сохранение...' : 'Сохранить'}
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      type="button"
+                      onClick={handleCancelEditProfile}
+                      disabled={profileSaving}
+                    >
+                      Отмена
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div className="profile-card">
+                    <div className="profile-field">
+                      <label>Полное имя</label>
+                      <p>{user.username}</p>
+                    </div>
+                    <div className="profile-field">
+                      <label>E-mail адрес</label>
+                      <p>{user.email}</p>
+                    </div>
+                    <div className="profile-field">
+                      <label>ID пользователя</label>
+                      <p className="user-id">{user.id}</p>
+                    </div>
+                  </div>
+                  <button className="btn btn-secondary btn-edit" onClick={handleEditProfile}>
+                    Редактировать профиль
+                  </button>
+                </>
+              )}
             </div>
           )}
 
@@ -222,60 +333,6 @@ export const PersonalCabinetPage: React.FC = () => {
                       </div>
                   )}
               </div>
-          )}
-
-          {/* Settings Tab */}
-          {activeTab === 'settings' && (
-            <div className="cabinet-section">
-              <h2>Параметры аккаунта</h2>
-              <div className="settings-group">
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h3>Уведомления</h3>
-                    <p>Управляйте уведомлениями по электронной почте</p>
-                  </div>
-                  <input type="checkbox" defaultChecked />
-                </div>
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h3>Двухфакторная аутентификация</h3>
-                    <p>Добавьте дополнительный уровень безопасности</p>
-                  </div>
-                  <button className="btn btn-small">Включить</button>
-                </div>
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h3>Приватность</h3>
-                    <p>Управляйте вашей приватностью</p>
-                  </div>
-                  <button className="btn btn-small">Управлять</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Help Tab */}
-          {activeTab === 'help' && (
-            <div className="cabinet-section">
-              <h2>Помощь и поддержка</h2>
-              <div className="help-items">
-                <div className="help-item">
-                  <h3>Часто задаваемые вопросы</h3>
-                  <p>Найдите ответы на общие вопросы</p>
-                  <a href="#faq" className="help-link">Перейти к FAQ →</a>
-                </div>
-                <div className="help-item">
-                  <h3>Связаться с поддержкой</h3>
-                  <p>Наша команда готова помочь вам</p>
-                  <a href="#contact" className="help-link">Отправить сообщение →</a>
-                </div>
-                <div className="help-item">
-                  <h3>Документация</h3>
-                  <p>Прочитайте нашу документацию</p>
-                  <a href="#docs" className="help-link">Просмотр документов →</a>
-                </div>
-              </div>
-            </div>
           )}
         </div>
       </div>
